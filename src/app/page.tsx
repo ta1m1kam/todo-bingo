@@ -13,7 +13,8 @@ import {
 } from '@/components/gamification'
 import { ShareButton, ShareModal, Ranking } from '@/components/social'
 import { UserMenu } from '@/components/auth'
-import { useBingoCard, useGameState } from '@/hooks'
+import { HamburgerMenu } from '@/components/ui'
+import { useSupabaseBingoCard, useGameState } from '@/hooks'
 
 export default function Home() {
   const [showRanking, setShowRanking] = useState(false)
@@ -25,9 +26,10 @@ export default function Home() {
     title,
     stats,
     isLoaded: cardLoaded,
+    isSaving,
     updateCell,
     resetProgress,
-  } = useBingoCard()
+  } = useSupabaseBingoCard()
 
   const {
     gameState,
@@ -42,11 +44,11 @@ export default function Home() {
     resetGameState,
   } = useGameState()
 
-  const handleCellComplete = useCallback((position: number) => {
+  const handleCellComplete = useCallback(async (position: number) => {
     const cell = cells.find(c => c.position === position)
     if (!cell || cell.is_free || !cell.goal_text) return
 
-    const { wasCompletion, prevBingoLines: bingosBefore } = updateCell(position, { is_completed: !cell.is_completed })
+    const { wasCompletion, prevBingoLines: bingosBefore } = await updateCell(position, { is_completed: !cell.is_completed })
 
     if (wasCompletion) {
       const updatedCells = cells.map(c =>
@@ -112,6 +114,12 @@ export default function Home() {
               <p className="text-gray-500 text-sm">今年の目標をビンゴで達成しよう</p>
             </div>
             <div className="flex items-center gap-3">
+              {isSaving && (
+                <span className="text-xs text-gray-400 flex items-center gap-1">
+                  <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                  保存中
+                </span>
+              )}
               <PointsDisplay points={gameState.totalPoints} size="sm" />
               <button
                 onClick={() => setShowShareModal(true)}
@@ -123,6 +131,7 @@ export default function Home() {
                 </svg>
               </button>
               <UserMenu />
+              <HamburgerMenu />
             </div>
           </div>
         </div>

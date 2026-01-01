@@ -1,8 +1,9 @@
 'use client'
 
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import Link from 'next/link'
-import { useBingoCard } from '@/hooks'
+import { HamburgerMenu } from '@/components/ui'
+import { useSupabaseBingoCard } from '@/hooks'
 import { CATEGORIES, type Category } from '@/types'
 
 export default function GoalsPage() {
@@ -12,9 +13,10 @@ export default function GoalsPage() {
     title,
     hasFreeCenter,
     isLoaded,
+    isSaving,
     updateCell,
     setTitle,
-  } = useBingoCard()
+  } = useSupabaseBingoCard()
 
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
@@ -102,7 +104,13 @@ export default function GoalsPage() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <span className="text-sm text-gray-600">
+              {isSaving && (
+                <span className="text-xs text-gray-400 flex items-center gap-1">
+                  <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                  保存中
+                </span>
+              )}
+              <span className="text-sm text-gray-600 hidden sm:inline">
                 <span className="font-bold text-blue-600">{filledCells}</span>
                 <span className="text-gray-400"> / {editableCells} 入力済み</span>
               </span>
@@ -113,6 +121,7 @@ export default function GoalsPage() {
               >
                 次の空欄へ
               </button>
+              <HamburgerMenu />
             </div>
           </div>
         </div>

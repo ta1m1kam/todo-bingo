@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { Dashboard } from '@/components/analytics'
 import { StreakCalendar, BadgeGrid } from '@/components/gamification'
+import { HamburgerMenu } from '@/components/ui'
 import { useBingoCard, useGameState } from '@/hooks'
 import { BADGE_DEFINITIONS } from '@/types'
 
@@ -24,20 +25,23 @@ export default function AnalyticsPage() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       <header className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Link
-              href="/"
-              className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-              title="戻る"
-            >
-              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </Link>
-            <div>
-              <h1 className="text-2xl font-bold text-gray-800">📊 統計・分析</h1>
-              <p className="text-gray-500 text-sm">達成状況を確認</p>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Link
+                href="/"
+                className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                title="戻る"
+              >
+                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </Link>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-800">📊 統計・分析</h1>
+                <p className="text-gray-500 text-sm">達成状況を確認</p>
+              </div>
             </div>
+            <HamburgerMenu />
           </div>
         </div>
       </header>
