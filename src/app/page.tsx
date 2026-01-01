@@ -62,13 +62,13 @@ export default function Home() {
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom right, var(--theme-background), color-mix(in srgb, var(--theme-secondary) 15%, var(--theme-background)))' }}>
-        <header className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-10">
+      <div className="min-h-screen" style={{ backgroundColor: 'var(--theme-background)' }}>
+        <header className="bg-white/95 shadow-sm sticky top-0 z-10">
           <div className="max-w-4xl mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <HamburgerMenu />
-                <h1 className="text-2xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(to right, var(--theme-primary), var(--theme-secondary))' }}>
+                <h1 className="text-2xl font-bold" style={{ color: 'var(--theme-primary)' }}>
                   とぅーどぅーびんご
                 </h1>
               </div>
@@ -77,14 +77,14 @@ export default function Home() {
           </div>
         </header>
         <div className="flex items-center justify-center py-32">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-500"></div>
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2" style={{ borderColor: 'var(--theme-primary)' }}></div>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom right, var(--theme-background), color-mix(in srgb, var(--theme-secondary) 15%, var(--theme-background)))' }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--theme-background)' }}>
       {/* Notifications */}
       {pendingPoints && (
         <PointsGain points={pendingPoints} onAnimationEnd={clearPendingPoints} />
@@ -116,13 +116,13 @@ export default function Home() {
       />
 
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-10">
+      <header className="bg-white/95 shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <HamburgerMenu />
               <div>
-                <h1 className="text-2xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(to right, var(--theme-primary), var(--theme-secondary))' }}>
+                <h1 className="text-2xl font-bold" style={{ color: 'var(--theme-primary)' }}>
                   とぅーどぅーびんご
                 </h1>
                 {hasGoals && (
@@ -135,7 +135,7 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-2">
               {isSaving && (
-                <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: 'var(--theme-primary)' }} />
               )}
               <button
                 onClick={() => setShowShareModal(true)}
@@ -188,7 +188,7 @@ export default function Home() {
           <Link
             href="/goals"
             className="px-6 py-3 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-shadow flex items-center gap-2"
-            style={{ background: 'linear-gradient(to right, var(--theme-primary), var(--theme-secondary))' }}
+            style={{ backgroundColor: 'var(--theme-primary)' }}
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />

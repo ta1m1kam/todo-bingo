@@ -68,6 +68,7 @@ export default function RootLayout({
       <body
         className={`${zenMaruGothic.variable} antialiased`}
         style={{ fontFamily: 'var(--font-zen-maru), sans-serif' }}
+        suppressHydrationWarning
       >
         <AuthProvider>
           <ThemeProvider>

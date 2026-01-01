@@ -60,15 +60,27 @@ export function BingoCell({ cell, mode, isInCompletedLine, size, onUpdate }: Bin
 
   const getCellStyle = () => {
     if (cell.is_free) {
-      return { background: 'linear-gradient(to bottom right, #fef3c7, #fde68a)' }
+      return {
+        backgroundColor: 'color-mix(in srgb, var(--theme-secondary) 10%, white)',
+        borderColor: 'color-mix(in srgb, var(--theme-secondary) 30%, white)'
+      }
     }
     if (cell.is_completed) {
       if (isInCompletedLine) {
-        return { background: `linear-gradient(to bottom right, var(--theme-completed), color-mix(in srgb, var(--theme-completed) 80%, black))` }
+        return {
+          backgroundColor: 'var(--theme-completed)',
+          borderColor: 'var(--theme-completed)'
+        }
       }
-      return { background: `linear-gradient(to bottom right, color-mix(in srgb, var(--theme-completed) 30%, white), color-mix(in srgb, var(--theme-completed) 40%, white))` }
+      return {
+        backgroundColor: 'color-mix(in srgb, var(--theme-completed) 20%, white)',
+        borderColor: 'color-mix(in srgb, var(--theme-completed) 50%, white)'
+      }
     }
-    return { background: 'var(--theme-cell)' }
+    return {
+      backgroundColor: 'var(--theme-cell)',
+      borderColor: '#E8E5E0'
+    }
   }
 
   return (
@@ -77,21 +89,21 @@ export function BingoCell({ cell, mode, isInCompletedLine, size, onUpdate }: Bin
         relative ${cellSize} p-2 rounded-lg border-2 transition-all duration-200
         flex items-center justify-center text-center
         ${cell.is_free
-          ? 'border-yellow-400 cursor-default'
+          ? 'cursor-default'
           : cell.is_completed
             ? isInCompletedLine
-              ? 'border-[color:var(--theme-completed)] text-white shadow-lg scale-[1.02]'
-              : 'border-[color:var(--theme-completed)] text-green-800'
+              ? 'text-white shadow-md scale-[1.02]'
+              : 'text-green-800'
             : mode === 'edit'
-              ? 'border-gray-300 hover:border-blue-400 hover:shadow-md cursor-text text-gray-900'
-              : 'border-gray-300 hover:border-gray-400 hover:shadow-md cursor-pointer text-gray-900'
+              ? 'hover:shadow-md cursor-text text-gray-900'
+              : 'hover:shadow-md cursor-pointer text-gray-900'
         }
       `}
       style={getCellStyle()}
       onClick={handleClick}
     >
       {cell.is_free ? (
-        <span className="text-yellow-700 font-bold">FREE</span>
+        <span className="font-bold" style={{ color: 'var(--theme-secondary)' }}>FREE</span>
       ) : isEditing ? (
         <textarea
           ref={textareaRef}

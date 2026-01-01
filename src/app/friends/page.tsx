@@ -90,13 +90,13 @@ export default function FriendsPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom right, #eff6ff, #e0f2fe)' }}>
-      <header className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-10">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--theme-background)' }}>
+      <header className="bg-white/95 shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <HamburgerMenu />
-              <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-cyan-600">
+              <h1 className="text-2xl font-bold" style={{ color: 'var(--theme-primary)' }}>
                 👥 フレンド
               </h1>
             </div>
@@ -108,7 +108,7 @@ export default function FriendsPage() {
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
         {isLoading ? (
           <div className="flex items-center justify-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2" style={{ borderColor: 'var(--theme-primary)' }}></div>
           </div>
         ) : (
           <>
@@ -126,7 +126,8 @@ export default function FriendsPage() {
                 <button
                   onClick={handleSearch}
                   disabled={isSearching || !searchQuery.trim()}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50"
+                  className="px-4 py-2 text-white rounded-lg transition-colors disabled:opacity-50"
+                  style={{ backgroundColor: 'var(--theme-primary)' }}
                 >
                   {isSearching ? '検索中...' : '検索'}
                 </button>
@@ -137,7 +138,7 @@ export default function FriendsPage() {
                   {searchResults.map((result) => (
                     <div key={result.id} className="p-3 flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-cyan-500 flex items-center justify-center text-white font-bold">
+                        <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold" style={{ backgroundColor: 'var(--theme-primary)' }}>
                           {(result.display_name || '?').charAt(0)}
                         </div>
                         <div>
@@ -147,7 +148,8 @@ export default function FriendsPage() {
                       </div>
                       <button
                         onClick={() => handleSendRequest(result.id)}
-                        className="px-3 py-1.5 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors"
+                        className="px-3 py-1.5 text-white text-sm rounded-lg transition-colors"
+                        style={{ backgroundColor: 'var(--theme-primary)' }}
                       >
                         申請
                       </button>
@@ -168,7 +170,7 @@ export default function FriendsPage() {
                   {pendingRequests.map((friend) => (
                     <div key={friend.id} className="p-4 flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white font-bold">
+                        <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold" style={{ backgroundColor: 'var(--theme-secondary)' }}>
                           {friend.displayName.charAt(0)}
                         </div>
                         <div>
@@ -185,7 +187,8 @@ export default function FriendsPage() {
                         </button>
                         <button
                           onClick={() => handleAccept(friend.friendshipId)}
-                          className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+                          className="px-4 py-2 text-white rounded-lg transition-colors"
+                          style={{ backgroundColor: 'var(--theme-primary)' }}
                         >
                           承認
                         </button>
@@ -207,7 +210,7 @@ export default function FriendsPage() {
                   {acceptedFriends.map((friend) => (
                     <div key={friend.id} className="p-4 flex items-center justify-between hover:bg-gray-50">
                       <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-teal-500 flex items-center justify-center text-white font-bold">
+                        <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold" style={{ backgroundColor: 'var(--theme-completed)' }}>
                           {friend.displayName.charAt(0)}
                         </div>
                         <div>
@@ -217,7 +220,8 @@ export default function FriendsPage() {
                       </div>
                       <Link
                         href="/battles"
-                        className="px-3 py-1.5 bg-purple-100 text-purple-700 text-sm rounded-lg hover:bg-purple-200 transition-colors"
+                        className="px-3 py-1.5 text-sm rounded-lg transition-colors"
+                        style={{ backgroundColor: 'color-mix(in srgb, var(--theme-primary) 20%, white)', color: 'var(--theme-primary)' }}
                       >
                         バトル
                       </Link>

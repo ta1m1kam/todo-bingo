@@ -26,7 +26,10 @@ export function AchievementPopup({ badge, onClose }: AchievementPopupProps) {
         isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
       }`}
     >
-      <div className="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-xl p-4 shadow-2xl flex items-center gap-4 min-w-[280px]">
+      <div
+        className="rounded-xl p-4 shadow-lg flex items-center gap-4 min-w-[280px]"
+        style={{ backgroundColor: '#C4A57B' }}
+      >
         <div className="text-5xl">{badge.icon}</div>
         <div className="text-white">
           <div className="text-xs font-medium opacity-90">バッジ獲得!</div>
@@ -64,9 +67,10 @@ export function BadgeDisplay({ badges, earnedBadgeIds, size = 'md' }: BadgeDispl
             <div
               className={`${sizeClasses[size]} rounded-full flex items-center justify-center ${
                 isEarned
-                  ? 'bg-gradient-to-br from-yellow-100 to-yellow-200 shadow-md'
+                  ? 'shadow-md'
                   : 'bg-gray-200'
               }`}
+              style={isEarned ? { backgroundColor: '#FEF9F4', border: '2px solid #E5D5C3' } : {}}
             >
               {isEarned ? badge.icon : '?'}
             </div>
@@ -104,7 +108,7 @@ export function BadgeGrid({ badges, earnedBadgeIds, onBadgeClick }: BadgeGridPro
               onClick={() => isEarned && onBadgeClick?.(badge)}
               className={`group flex flex-col items-center gap-1 p-2 rounded-lg transition-all ${
                 isEarned
-                  ? 'hover:bg-yellow-50 cursor-pointer'
+                  ? 'hover:bg-amber-50 cursor-pointer'
                   : 'cursor-not-allowed opacity-50 grayscale'
               }`}
               disabled={!isEarned}
@@ -112,9 +116,10 @@ export function BadgeGrid({ badges, earnedBadgeIds, onBadgeClick }: BadgeGridPro
               <div
                 className={`w-12 h-12 rounded-full flex items-center justify-center text-2xl transition-transform ${
                   isEarned
-                    ? 'bg-gradient-to-br from-yellow-100 to-yellow-200 shadow-md group-hover:scale-110'
+                    ? 'shadow-md group-hover:scale-110'
                     : 'bg-gray-200'
                 }`}
+                style={isEarned ? { backgroundColor: '#FEF9F4', border: '2px solid #E5D5C3' } : {}}
               >
                 {isEarned ? badge.icon : '🔒'}
               </div>

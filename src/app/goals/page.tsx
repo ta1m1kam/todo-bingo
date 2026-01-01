@@ -90,9 +90,9 @@ export default function GoalsPage() {
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom right, var(--theme-background), color-mix(in srgb, var(--theme-secondary) 15%, var(--theme-background)))' }}>
+      <div className="min-h-screen" style={{ backgroundColor: 'var(--theme-background)' }}>
         {/* Header with navigation during loading */}
-        <header className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-10">
+        <header className="bg-white/95 shadow-sm sticky top-0 z-10">
           <div className="max-w-4xl mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
@@ -116,7 +116,7 @@ export default function GoalsPage() {
         {/* Loading content */}
         <div className="flex items-center justify-center py-32">
           <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: 'var(--theme-primary)' }}></div>
             <div className="text-xl text-gray-500">読み込み中...</div>
           </div>
         </div>
@@ -125,7 +125,7 @@ export default function GoalsPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom right, var(--theme-background), color-mix(in srgb, var(--theme-secondary) 15%, var(--theme-background)))' }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--theme-background)' }}>
       {/* Create Card Modal */}
       <CreateCardModal
         isOpen={showCreateModal}
@@ -133,7 +133,7 @@ export default function GoalsPage() {
       />
 
       {/* Header */}
-      <header className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-10">
+      <header className="bg-white/95 shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -154,18 +154,19 @@ export default function GoalsPage() {
             <div className="flex items-center gap-3">
               {isSaving && (
                 <span className="text-xs text-gray-400 flex items-center gap-1">
-                  <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+                  <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: 'var(--theme-primary)' }} />
                   保存中
                 </span>
               )}
               <span className="text-sm text-gray-600 hidden sm:inline">
-                <span className="font-bold text-blue-600">{filledCells}</span>
+                <span className="font-bold" style={{ color: 'var(--theme-primary)' }}>{filledCells}</span>
                 <span className="text-gray-400"> / {editableCells} 入力済み</span>
               </span>
               <button
                 onClick={scrollToNext}
                 disabled={filledCells >= editableCells}
-                className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-4 py-2 text-white rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                style={{ backgroundColor: 'var(--theme-primary)' }}
               >
                 次の空欄へ
               </button>
@@ -187,7 +188,7 @@ export default function GoalsPage() {
           <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
             <div
               className="h-full transition-all duration-300"
-              style={{ width: `${(filledCells / editableCells) * 100}%`, background: 'linear-gradient(to right, var(--theme-primary), var(--theme-secondary))' }}
+              style={{ width: `${(filledCells / editableCells) * 100}%`, backgroundColor: 'var(--theme-primary)' }}
             />
           </div>
         </div>
@@ -325,7 +326,7 @@ export default function GoalsPage() {
           <Link
             href="/"
             className="px-6 py-3 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-shadow"
-            style={{ background: 'linear-gradient(to right, var(--theme-primary), var(--theme-secondary))' }}
+            style={{ backgroundColor: 'var(--theme-primary)' }}
           >
             ビンゴカードに戻る
           </Link>

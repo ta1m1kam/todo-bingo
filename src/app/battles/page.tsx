@@ -48,25 +48,26 @@ export default function BattlesPage() {
   ]
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom right, #faf5ff, #fce7f3)' }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--theme-background)' }}>
       <CreateBattleModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
       />
 
-      <header className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-10">
+      <header className="bg-white/95 shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <HamburgerMenu />
-              <h1 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-pink-600">
+              <h1 className="text-2xl font-bold" style={{ color: 'var(--theme-primary)' }}>
                 ⚔️ バトル
               </h1>
             </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowCreateModal(true)}
-                className="px-4 py-2 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-lg hover:opacity-90 transition-opacity text-sm font-medium"
+                className="px-4 py-2 text-white rounded-lg hover:opacity-90 transition-opacity text-sm font-medium"
+                style={{ backgroundColor: 'var(--theme-primary)' }}
               >
                 + 新規バトル
               </button>
@@ -99,22 +100,24 @@ export default function BattlesPage() {
                     onClick={() => setActiveTab(tab.key)}
                     className={`flex-1 px-4 py-3 text-sm font-medium transition-colors relative ${
                       activeTab === tab.key
-                        ? 'text-purple-600'
+                        ? ''
                         : 'text-gray-600 hover:text-gray-800'
                     }`}
+                    style={activeTab === tab.key ? { color: 'var(--theme-primary)' } : {}}
                   >
                     {tab.label}
                     {tab.count > 0 && (
                       <span className={`ml-1.5 px-1.5 py-0.5 text-xs rounded-full ${
                         activeTab === tab.key
-                          ? 'bg-purple-100 text-purple-600'
+                          ? ''
                           : 'bg-gray-100 text-gray-600'
-                      }`}>
+                      }`}
+                      style={activeTab === tab.key ? { backgroundColor: 'color-mix(in srgb, var(--theme-primary) 20%, white)', color: 'var(--theme-primary)' } : {}}>
                         {tab.count}
                       </span>
                     )}
                     {activeTab === tab.key && (
-                      <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-purple-500" />
+                      <span className="absolute bottom-0 left-0 right-0 h-0.5" style={{ backgroundColor: 'var(--theme-primary)' }} />
                     )}
                   </button>
                 ))}
@@ -154,7 +157,8 @@ export default function BattlesPage() {
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <button
                     onClick={() => setShowCreateModal(true)}
-                    className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-xl hover:opacity-90 transition-opacity"
+                    className="px-6 py-3 text-white rounded-xl hover:opacity-90 transition-opacity"
+                    style={{ backgroundColor: 'var(--theme-primary)' }}
                   >
                     バトルを申請する
                   </button>

@@ -22,14 +22,14 @@ export default function SettingsPage() {
   const isLoaded = cardLoaded && !cardsLoading
 
   return (
-    <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom right, var(--theme-background), color-mix(in srgb, var(--theme-secondary) 15%, var(--theme-background)))' }}>
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--theme-background)' }}>
       {/* Create Card Modal */}
       <CreateCardModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
       />
 
-      <header className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-10">
+      <header className="bg-white/95 shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -92,7 +92,7 @@ export default function SettingsPage() {
             </div>
           ) : (
             <div className="flex items-center justify-center py-4">
-              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2" style={{ borderColor: 'var(--theme-primary)' }}></div>
             </div>
           )}
         </div>
@@ -113,7 +113,7 @@ export default function SettingsPage() {
           <Link
             href="/"
             className="px-6 py-2 text-white rounded-lg hover:opacity-90 transition-colors"
-            style={{ background: 'linear-gradient(to right, var(--theme-primary), var(--theme-secondary))' }}
+            style={{ backgroundColor: 'var(--theme-primary)' }}
           >
             ホームに戻る
           </Link>

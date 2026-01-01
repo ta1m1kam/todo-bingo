@@ -4,12 +4,12 @@
   --background: #ffffff;
   --foreground: #171717;
 
-  /* Theme variables */
-  --theme-primary: #6366f1;
-  --theme-secondary: #8b5cf6;
-  --theme-background: #eef2ff;
+  /* Theme variables - Natural theme as default */
+  --theme-primary: #8B7355;
+  --theme-secondary: #A68968;
+  --theme-background: #FAF8F5;
   --theme-cell: #ffffff;
-  --theme-completed: #22c55e;
+  --theme-completed: #7A9B76;
 }
 
 @theme inline {
@@ -104,11 +104,11 @@ body {
 @keyframes bingo-flash {
   0%, 100% {
     opacity: 1;
-    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--theme-completed) 50%, transparent);
   }
   50% {
-    opacity: 0.8;
-    box-shadow: 0 0 20px 10px rgba(34, 197, 94, 0.4);
+    opacity: 0.9;
+    box-shadow: 0 0 15px 8px color-mix(in srgb, var(--theme-completed) 30%, transparent);
   }
 }
 
@@ -250,10 +250,10 @@ body {
 /* Glow effect */
 @keyframes glow {
   0%, 100% {
-    box-shadow: 0 0 5px rgba(99, 102, 241, 0.5);
+    box-shadow: 0 0 5px color-mix(in srgb, var(--theme-primary) 30%, transparent);
   }
   50% {
-    box-shadow: 0 0 20px rgba(99, 102, 241, 0.8);
+    box-shadow: 0 0 15px color-mix(in srgb, var(--theme-primary) 50%, transparent);
   }
 }
 
