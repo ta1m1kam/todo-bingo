@@ -367,7 +367,7 @@ export default function GoalsPage() {
               if (cell.is_free) {
                 return (
                   <div
-                    key={index}
+                    key={`cell-${cell.position}`}
                     className="px-4 py-3 bg-yellow-50 flex items-center gap-4"
                   >
                     <span className="text-sm text-gray-500 w-20 flex-shrink-0">
@@ -387,7 +387,7 @@ export default function GoalsPage() {
 
               return (
                 <div
-                  key={index}
+                  key={`cell-${cell.position}`}
                   className={`px-4 py-3 transition-colors ${
                     isUnsaved ? 'bg-amber-50' : focusedIndex === index ? 'bg-blue-50' : 'hover:bg-gray-50'
                   }`}
@@ -399,7 +399,10 @@ export default function GoalsPage() {
                     <div className="flex-1 relative">
                       <input
                         ref={(el) => { inputRefs.current[index] = el }}
+                        id={`goal-input-${cell.position}`}
+                        name={`goal-${cell.position}`}
                         type="text"
+                        autoComplete="off"
                         value={displayValue}
                         onChange={(e) => handleLocalChange(cell.position, e.target.value)}
                         onFocus={() => setFocusedIndex(index)}
