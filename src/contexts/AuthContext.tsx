@@ -151,11 +151,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = async () => {
-    const supabase = createClient()
-    await supabase.auth.signOut()
-    setUser(null)
-    setProfile(null)
-    setSession(null)
+    try {
+      const supabase = createClient()
+      await supabase.auth.signOut()
+      setUser(null)
+      setProfile(null)
+      setSession(null)
+      setIsLoading(false)
+      // Reload page to ensure clean state
+      window.location.href = '/'
+    } catch (error) {
+      console.error('Sign out error:', error)
+      // Force reload even on error
+      window.location.href = '/'
+    }
   }
 
   return (

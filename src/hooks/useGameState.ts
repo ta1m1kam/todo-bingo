@@ -37,7 +37,7 @@ interface CellState {
 }
 
 export function useGameState() {
-  const { user, profile, refreshProfile } = useAuth()
+  const { user, profile, refreshProfile, isLoading: authLoading } = useAuth()
   const [gameState, setGameState] = useState<GameState>(initialGameState)
   const [isLoaded, setIsLoaded] = useState(false)
   const [pendingBadge, setPendingBadge] = useState<Badge | null>(null)
@@ -46,6 +46,11 @@ export function useGameState() {
 
   // Load from Supabase
   useEffect(() => {
+    // Wait for auth to finish loading
+    if (authLoading) {
+      return
+    }
+
     if (!user) {
       setIsLoaded(true)
       return
@@ -111,7 +116,7 @@ export function useGameState() {
     }
 
     loadFromSupabase()
-  }, [user])
+  }, [user, authLoading])
 
   // Sync profile changes
   useEffect(() => {

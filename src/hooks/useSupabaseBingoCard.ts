@@ -53,6 +53,22 @@ export function useSupabaseBingoCard() {
       const supabase = createClient()
 
       try {
+        // Ensure profile exists (in case trigger didn't fire)
+        const { data: existingProfile } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('id', user.id)
+          .single()
+
+        if (!existingProfile) {
+          // Create profile if it doesn't exist
+          await supabase.from('profiles').insert({
+            id: user.id,
+            email: user.email,
+            display_name: user.user_metadata?.name || user.email?.split('@')[0] || 'User',
+          })
+        }
+
         // Get active bingo card
         const { data: cards } = await supabase
           .from('bingo_cards')

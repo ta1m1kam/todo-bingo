@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { AuthModal } from './AuthModal'
 
@@ -9,15 +9,75 @@ interface AuthGuardProps {
 }
 
 export function AuthGuard({ children }: AuthGuardProps) {
-  const { user, isLoading } = useAuth()
+  const { user, isLoading, signOut } = useAuth()
   const [showAuthModal, setShowAuthModal] = useState(true)
+  const [loadingTimeout, setLoadingTimeout] = useState(false)
+
+  // Set a timeout for loading state
+  useEffect(() => {
+    if (isLoading) {
+      const timer = setTimeout(() => {
+        setLoadingTimeout(true)
+      }, 10000) // 10 seconds timeout
+      return () => clearTimeout(timer)
+    } else {
+      setLoadingTimeout(false)
+    }
+  }, [isLoading])
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent mb-4"></div>
-          <p className="text-gray-500">読み込み中...</p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+        {/* Header during loading */}
+        <header className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-10">
+          <div className="max-w-4xl mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                  Todo Bingo 2025
+                </h1>
+                <p className="text-gray-500 text-sm">今年の目標をビンゴで達成しよう</p>
+              </div>
+              {loadingTimeout && (
+                <button
+                  onClick={() => signOut()}
+                  className="px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                >
+                  ログアウト
+                </button>
+              )}
+            </div>
+          </div>
+        </header>
+
+        {/* Loading content */}
+        <div className="flex items-center justify-center py-32">
+          <div className="text-center">
+            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent mb-4"></div>
+            <p className="text-gray-500 mb-4">読み込み中...</p>
+
+            {loadingTimeout && (
+              <div className="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200 max-w-sm mx-auto">
+                <p className="text-yellow-800 text-sm mb-3">
+                  読み込みに時間がかかっています
+                </p>
+                <div className="flex gap-2 justify-center">
+                  <button
+                    onClick={() => window.location.reload()}
+                    className="px-4 py-2 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition-colors"
+                  >
+                    再読み込み
+                  </button>
+                  <button
+                    onClick={() => signOut()}
+                    className="px-4 py-2 bg-gray-200 text-gray-700 text-sm rounded-lg hover:bg-gray-300 transition-colors"
+                  >
+                    ログアウト
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     )

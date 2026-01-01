@@ -72,8 +72,32 @@ export default function Home() {
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-        <div className="text-xl text-gray-500">Loading...</div>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+        {/* Header with logout option during loading */}
+        <header className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-10">
+          <div className="max-w-4xl mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                  Todo Bingo 2025
+                </h1>
+                <p className="text-gray-500 text-sm">今年の目標をビンゴで達成しよう</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <UserMenu />
+                <HamburgerMenu />
+              </div>
+            </div>
+          </div>
+        </header>
+        {/* Loading content */}
+        <div className="flex items-center justify-center py-32">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <div className="text-xl text-gray-500">読み込み中...</div>
+            <p className="text-sm text-gray-400 mt-2">データを読み込んでいます</p>
+          </div>
+        </div>
       </div>
     )
   }

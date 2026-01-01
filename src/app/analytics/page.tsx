@@ -15,8 +15,37 @@ export default function AnalyticsPage() {
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-        <div className="text-xl text-gray-500">Loading...</div>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+        {/* Header with navigation during loading */}
+        <header className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-10">
+          <div className="max-w-4xl mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Link
+                  href="/"
+                  className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                  title="戻る"
+                >
+                  <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </Link>
+                <div>
+                  <h1 className="text-2xl font-bold text-gray-800">📊 統計・分析</h1>
+                  <p className="text-gray-500 text-sm">達成状況を確認</p>
+                </div>
+              </div>
+              <HamburgerMenu />
+            </div>
+          </div>
+        </header>
+        {/* Loading content */}
+        <div className="flex items-center justify-center py-32">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <div className="text-xl text-gray-500">読み込み中...</div>
+          </div>
+        </div>
       </div>
     )
   }
