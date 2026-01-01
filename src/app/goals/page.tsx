@@ -53,6 +53,13 @@ export default function GoalsPage() {
     return displayValue.length > 0
   }).length
 
+  const hasUnsavedChange = useCallback((position: number): boolean => {
+    const localValue = localEdits[position]
+    if (localValue === undefined) return false
+    const savedValue = cells.find(c => c.position === position)?.goal_text ?? ''
+    return localValue !== savedValue
+  }, [localEdits, cells])
+
   const unsavedCount = Object.keys(localEdits).filter(pos =>
     hasUnsavedChange(Number(pos))
   ).length
@@ -81,13 +88,6 @@ export default function GoalsPage() {
       })
     }
   }, [localEdits, updateCell])
-
-  const hasUnsavedChange = useCallback((position: number): boolean => {
-    const localValue = localEdits[position]
-    if (localValue === undefined) return false
-    const savedValue = cells.find(c => c.position === position)?.goal_text ?? ''
-    return localValue !== savedValue
-  }, [localEdits, cells])
 
   const handleSaveAll = useCallback(async () => {
     const positions = Object.keys(localEdits)
