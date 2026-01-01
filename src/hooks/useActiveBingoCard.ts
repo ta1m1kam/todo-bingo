@@ -124,10 +124,6 @@ export function useActiveBingoCard() {
     position: number,
     updates: Partial<Pick<LocalCell, 'goal_text' | 'is_completed'>>
   ): Promise<{ wasCompletion: boolean; prevBingoLines: number }> => {
-    if (!user || !cardState.cardId) {
-      return { wasCompletion: false, prevBingoLines: 0 }
-    }
-
     let wasCompletion = false
     let bingoLinesBefore = 0
 
@@ -137,6 +133,7 @@ export function useActiveBingoCard() {
       bingoLinesBefore = calculateBingoStats(cardState.cells, cardState.size).bingoLines
     }
 
+    // Always update local state for responsive UI
     const newCells = cardState.cells.map(c =>
       c.position === position ? { ...c, ...updates } : c
     )
@@ -146,6 +143,11 @@ export function useActiveBingoCard() {
     if (wasCompletion) {
       const newStats = calculateBingoStats(newCells, cardState.size)
       setPrevBingoLines(newStats.bingoLines)
+    }
+
+    // Only save to DB if user and cardId exist
+    if (!user || !cardState.cardId) {
+      return { wasCompletion: false, prevBingoLines: 0 }
     }
 
     setIsSaving(true)

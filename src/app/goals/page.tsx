@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { HamburgerMenu } from '@/components/ui'
 import { CardTabs, CreateCardModal } from '@/components/bingo'
@@ -28,20 +28,92 @@ export default function GoalsPage() {
   const handleClearAll = useCallback(() => {
     if (window.confirm('すべての目標をクリアしますか？\nこの操作は取り消せません。')) {
       resetCard()
+      setLocalEdits({})
     }
   }, [resetCard])
 
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
+  const [localEdits, setLocalEdits] = useState<Record<number, string>>({})
+  const [savingPositions, setSavingPositions] = useState<Set<number>>(new Set())
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
+  // Reset local edits when cells change from server
+  useEffect(() => {
+    setLocalEdits({})
+  }, [cells])
+
   const totalCells = size * size
-  const filledCells = cells.filter(c => c.goal_text && !c.is_free).length
   const freeCells = cells.filter(c => c.is_free).length
   const editableCells = totalCells - freeCells
 
-  const handleGoalChange = useCallback((position: number, text: string) => {
-    updateCell(position, { goal_text: text })
-  }, [updateCell])
+  // Count filled cells considering local edits
+  const filledCells = cells.filter(c => {
+    if (c.is_free) return false
+    const displayValue = localEdits[c.position] ?? c.goal_text
+    return displayValue.length > 0
+  }).length
+
+  const unsavedCount = Object.keys(localEdits).filter(pos =>
+    hasUnsavedChange(Number(pos))
+  ).length
+
+  const handleLocalChange = useCallback((position: number, text: string) => {
+    setLocalEdits(prev => ({ ...prev, [position]: text }))
+  }, [])
+
+  const handleSave = useCallback(async (position: number) => {
+    const text = localEdits[position]
+    if (text === undefined) return
+
+    setSavingPositions(prev => new Set(prev).add(position))
+    try {
+      await updateCell(position, { goal_text: text })
+      setLocalEdits(prev => {
+        const next = { ...prev }
+        delete next[position]
+        return next
+      })
+    } finally {
+      setSavingPositions(prev => {
+        const next = new Set(prev)
+        next.delete(position)
+        return next
+      })
+    }
+  }, [localEdits, updateCell])
+
+  const hasUnsavedChange = useCallback((position: number): boolean => {
+    const localValue = localEdits[position]
+    if (localValue === undefined) return false
+    const savedValue = cells.find(c => c.position === position)?.goal_text ?? ''
+    return localValue !== savedValue
+  }, [localEdits, cells])
+
+  const handleSaveAll = useCallback(async () => {
+    const positions = Object.keys(localEdits)
+      .map(Number)
+      .filter(pos => {
+        const localValue = localEdits[pos]
+        const savedValue = cells.find(c => c.position === pos)?.goal_text ?? ''
+        return localValue !== savedValue
+      })
+
+    if (positions.length === 0) return
+
+    setSavingPositions(new Set(positions))
+    try {
+      await Promise.all(
+        positions.map(pos => updateCell(pos, { goal_text: localEdits[pos] }))
+      )
+      setLocalEdits({})
+    } finally {
+      setSavingPositions(new Set())
+    }
+  }, [localEdits, cells, updateCell])
+
+  const getDisplayValue = (position: number): string => {
+    return localEdits[position] ?? cells.find(c => c.position === position)?.goal_text ?? ''
+  }
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent, currentIndex: number) => {
     if (e.key === 'Enter' || (e.key === 'Tab' && !e.shiftKey)) {
@@ -80,13 +152,17 @@ export default function GoalsPage() {
   }
 
   const scrollToNext = useCallback(() => {
-    const nextEmpty = cells.findIndex(c => !c.is_free && !c.goal_text)
+    const nextEmpty = cells.findIndex(c => {
+      if (c.is_free) return false
+      const displayValue = localEdits[c.position] ?? c.goal_text
+      return !displayValue
+    })
     if (nextEmpty !== -1) {
       inputRefs.current[nextEmpty]?.focus()
       inputRefs.current[nextEmpty]?.scrollIntoView({ behavior: 'smooth', block: 'center' })
       setFocusedIndex(nextEmpty)
     }
-  }, [cells])
+  }, [cells, localEdits])
 
   if (!isLoaded) {
     return (
@@ -152,11 +228,22 @@ export default function GoalsPage() {
               </div>
             </div>
             <div className="flex items-center gap-3">
-              {isSaving && (
-                <span className="text-xs text-gray-400 flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: 'var(--theme-primary)' }} />
-                  保存中
-                </span>
+              {unsavedCount > 0 && (
+                <button
+                  onClick={handleSaveAll}
+                  disabled={savingPositions.size > 0}
+                  className="px-3 py-1.5 text-white text-sm rounded-lg transition-colors disabled:opacity-50 flex items-center gap-1"
+                  style={{ backgroundColor: 'var(--theme-primary)' }}
+                >
+                  {savingPositions.size > 0 ? (
+                    <>
+                      <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      保存中...
+                    </>
+                  ) : (
+                    <>すべて保存 ({unsavedCount})</>
+                  )}
+                </button>
               )}
               <span className="text-sm text-gray-600 hidden sm:inline">
                 <span className="font-bold" style={{ color: 'var(--theme-primary)' }}>{filledCells}</span>
@@ -263,47 +350,54 @@ export default function GoalsPage() {
                 )
               }
 
+              const displayValue = getDisplayValue(cell.position)
+              const isUnsaved = hasUnsavedChange(cell.position)
+              const isCellSaving = savingPositions.has(cell.position)
+
               return (
                 <div
                   key={index}
                   className={`px-4 py-3 transition-colors ${
-                    focusedIndex === index ? 'bg-blue-50' : 'hover:bg-gray-50'
+                    isUnsaved ? 'bg-amber-50' : focusedIndex === index ? 'bg-blue-50' : 'hover:bg-gray-50'
                   }`}
                 >
-                  <div className="flex items-center gap-4">
-                    <span className="text-sm text-gray-500 w-20 flex-shrink-0">
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm text-gray-500 w-16 flex-shrink-0">
                       {getPositionLabel(cell.position)}
                     </span>
                     <div className="flex-1 relative">
                       <input
                         ref={(el) => { inputRefs.current[index] = el }}
                         type="text"
-                        value={cell.goal_text}
-                        onChange={(e) => handleGoalChange(cell.position, e.target.value)}
+                        value={displayValue}
+                        onChange={(e) => handleLocalChange(cell.position, e.target.value)}
                         onFocus={() => setFocusedIndex(index)}
                         onBlur={() => setFocusedIndex(null)}
                         onKeyDown={(e) => handleKeyDown(e, index)}
-                        className="w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                        className={`w-full px-4 py-2 text-gray-900 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white ${
+                          isUnsaved ? 'border-amber-400' : 'border-gray-300'
+                        }`}
                         placeholder="目標を入力..."
                       />
-                      {cell.goal_text && (
-                        <button
-                          onClick={() => handleGoalChange(cell.position, '')}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                        >
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      )}
                     </div>
-                    <div className="w-8 flex-shrink-0 text-center">
-                      {cell.goal_text ? (
-                        <span className="text-green-500">✓</span>
-                      ) : (
-                        <span className="text-gray-300">○</span>
-                      )}
-                    </div>
+                    {isUnsaved ? (
+                      <button
+                        onClick={() => handleSave(cell.position)}
+                        disabled={isCellSaving}
+                        className="px-3 py-1.5 text-white text-sm rounded-lg transition-colors disabled:opacity-50 flex-shrink-0"
+                        style={{ backgroundColor: 'var(--theme-primary)' }}
+                      >
+                        {isCellSaving ? '...' : '保存'}
+                      </button>
+                    ) : (
+                      <div className="w-14 flex-shrink-0 text-center">
+                        {cell.goal_text ? (
+                          <span className="text-green-500">✓</span>
+                        ) : (
+                          <span className="text-gray-300">○</span>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               )
