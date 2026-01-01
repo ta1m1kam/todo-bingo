@@ -2,7 +2,7 @@ import { ImageResponse } from 'next/og'
 
 export const runtime = 'edge'
 
-export const alt = 'Todo Bingo 2025 - 今年の目標をビンゴで達成しよう'
+export const alt = 'とぅーどぅーびんご 2025 - 今年の目標をビンゴで達成しよう'
 export const size = {
   width: 1200,
   height: 600,
@@ -117,7 +117,7 @@ export default async function Image() {
               display: 'flex',
             }}
           >
-            Todo Bingo 2025
+            とぅーどぅーびんご 2025
           </h1>
           <p
             style={{

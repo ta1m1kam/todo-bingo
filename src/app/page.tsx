@@ -66,7 +66,7 @@ export default function Home() {
               <div className="flex items-center gap-3">
                 <HamburgerMenu />
                 <h1 className="text-2xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(to right, var(--theme-primary), var(--theme-secondary))' }}>
-                  Todo Bingo
+                  とぅーどぅーびんご
                 </h1>
               </div>
               <UserMenu />
@@ -103,7 +103,7 @@ export default function Home() {
         level={gameState.level}
         size={size}
         cells={cells}
-        title={title || 'Todo Bingo 2025'}
+        title={title || 'とぅーどぅーびんご 2025'}
       />
 
       {/* Header */}
@@ -114,7 +114,7 @@ export default function Home() {
               <HamburgerMenu />
               <div>
                 <h1 className="text-2xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(to right, var(--theme-primary), var(--theme-secondary))' }}>
-                  Todo Bingo
+                  とぅーどぅーびんご
                 </h1>
                 {hasGoals && (
                   <p className="text-sm text-gray-500">

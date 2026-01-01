@@ -53,7 +53,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                  Todo Bingo 2025
+                  とぅーどぅーびんご 2025
                 </h1>
                 <p className="text-gray-500 text-sm">今年の目標をビンゴで達成しよう</p>
               </div>
@@ -107,7 +107,7 @@ export function AuthGuard({ children }: AuthGuardProps) {
         <div className="min-h-screen flex flex-col items-center justify-center px-4">
           <div className="text-center mb-8">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4">
-              Todo Bingo 2025
+              とぅーどぅーびんご 2025
             </h1>
             <p className="text-xl text-gray-600 mb-2">
               今年の目標をビンゴで達成しよう

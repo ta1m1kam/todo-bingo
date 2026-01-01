@@ -25,7 +25,7 @@ export function ShareModal({
   level,
   size,
   cells,
-  title = 'Todo Bingo 2025',
+  title = 'とぅーどぅーびんご 2025',
 }: ShareModalProps) {
   const [imageLoading, setImageLoading] = useState(true)
   const [showGoals, setShowGoals] = useState(true)
@@ -356,7 +356,7 @@ export function ShareModal({
             <div className="flex justify-center">
               <ShareButton
                 data={{
-                  title: 'Todo Bingo 2025',
+                  title: 'とぅーどぅーびんご 2025',
                   text: '',
                   bingoLines,
                   completedCells,

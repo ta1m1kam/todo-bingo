@@ -19,26 +19,26 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL || "https://todo-bingo.vercel.app"
   ),
-  title: "Todo Bingo 2025 | 目標達成をゲーム化する新習慣",
+  title: "とぅーどぅーびんご 2025 | 目標達成をゲーム化する新習慣",
   description: "年間目標をビンゴカードに変換。達成するたびにポイント獲得、レベルアップ、バッジ解放。ゲーミフィケーションで継続率を劇的に向上させる目標管理アプリ。",
   keywords: ["目標管理", "ビンゴ", "習慣化", "ゲーミフィケーション", "タスク管理", "2025年", "新年の抱負"],
-  authors: [{ name: "Todo Bingo Team" }],
+  authors: [{ name: "とぅーどぅーびんご Team" }],
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Todo Bingo",
+    title: "とぅーどぅーびんご",
   },
   openGraph: {
-    title: "Todo Bingo 2025 | 目標達成をゲーム化する新習慣",
+    title: "とぅーどぅーびんご 2025 | 目標達成をゲーム化する新習慣",
     description: "年間目標をビンゴカードに変換。達成するたびにポイント獲得、レベルアップ、バッジ解放。ゲーミフィケーションで継続率を劇的に向上。",
     type: "website",
     locale: "ja_JP",
-    siteName: "Todo Bingo",
+    siteName: "とぅーどぅーびんご",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Todo Bingo 2025 | 目標達成をゲーム化 🎯",
+    title: "とぅーどぅーびんご 2025 | 目標達成をゲーム化 🎯",
     description: "年間目標をビンゴに。達成でポイント獲得・レベルアップ・バッジ解放。ゲーム感覚で継続率UP！",
     creator: "@todo_bingo",
   },
