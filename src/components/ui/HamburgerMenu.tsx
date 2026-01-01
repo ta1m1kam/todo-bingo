@@ -7,6 +7,8 @@ import { usePathname } from 'next/navigation'
 const menuItems = [
   { href: '/', label: 'ホーム', icon: '🏠', description: 'ビンゴカード' },
   { href: '/goals', label: '目標入力', icon: '📝', description: 'リスト形式で入力' },
+  { href: '/battles', label: 'バトル', icon: '⚔️', description: 'フレンドと対戦' },
+  { href: '/friends', label: 'フレンド', icon: '👥', description: 'フレンド管理' },
   { href: '/analytics', label: '統計・分析', icon: '📊', description: '達成状況を確認' },
   { href: '/settings', label: '設定', icon: '⚙️', description: 'テーマなど' },
 ]

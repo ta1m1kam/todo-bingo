@@ -198,6 +198,111 @@ export interface Database {
           created_at?: string
         }
       }
+      battles: {
+        Row: {
+          id: string
+          creator_id: string
+          opponent_id: string
+          battle_type: 'duel' | 'group' | 'tournament'
+          duration_days: number
+          start_date: string
+          end_date: string
+          status: 'pending' | 'active' | 'completed' | 'cancelled'
+          winner_id: string | null
+          is_draw: boolean
+          bonus_points: number
+          created_at: string
+          updated_at: string
+          completed_at: string | null
+        }
+        Insert: {
+          id?: string
+          creator_id: string
+          opponent_id: string
+          battle_type?: 'duel' | 'group' | 'tournament'
+          duration_days?: number
+          start_date: string
+          end_date: string
+          status?: 'pending' | 'active' | 'completed' | 'cancelled'
+          winner_id?: string | null
+          is_draw?: boolean
+          bonus_points?: number
+          created_at?: string
+          updated_at?: string
+          completed_at?: string | null
+        }
+        Update: {
+          id?: string
+          creator_id?: string
+          opponent_id?: string
+          battle_type?: 'duel' | 'group' | 'tournament'
+          duration_days?: number
+          start_date?: string
+          end_date?: string
+          status?: 'pending' | 'active' | 'completed' | 'cancelled'
+          winner_id?: string | null
+          is_draw?: boolean
+          bonus_points?: number
+          created_at?: string
+          updated_at?: string
+          completed_at?: string | null
+        }
+      }
+      battle_points: {
+        Row: {
+          id: string
+          battle_id: string
+          user_id: string
+          date: string
+          daily_points: number
+          total_points: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          battle_id: string
+          user_id: string
+          date: string
+          daily_points?: number
+          total_points?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          battle_id?: string
+          user_id?: string
+          date?: string
+          daily_points?: number
+          total_points?: number
+          created_at?: string
+        }
+      }
+      battle_participants: {
+        Row: {
+          id: string
+          battle_id: string
+          user_id: string
+          final_points: number
+          rank: number | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          battle_id: string
+          user_id: string
+          final_points?: number
+          rank?: number | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          battle_id?: string
+          user_id?: string
+          final_points?: number
+          rank?: number | null
+          created_at?: string
+        }
+      }
     }
   }
 }
@@ -208,3 +313,6 @@ export type BingoCell = Database['public']['Tables']['bingo_cells']['Row']
 export type Achievement = Database['public']['Tables']['achievements']['Row']
 export type Friendship = Database['public']['Tables']['friendships']['Row']
 export type ActivityLog = Database['public']['Tables']['activity_log']['Row']
+export type Battle = Database['public']['Tables']['battles']['Row']
+export type BattlePoints = Database['public']['Tables']['battle_points']['Row']
+export type BattleParticipant = Database['public']['Tables']['battle_participants']['Row']

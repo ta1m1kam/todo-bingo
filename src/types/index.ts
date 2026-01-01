@@ -1,4 +1,5 @@
 export * from './database'
+export * from './battle'
 
 export type BingoMode = 'edit' | 'play'
 
