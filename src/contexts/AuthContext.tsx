@@ -29,7 +29,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const supabase = createClient()
 
-      // First try to get existing profile
+      // First try to get existing profile by user ID
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
@@ -37,7 +37,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single()
 
       if (error && error.code === 'PGRST116') {
-        // Profile doesn't exist, create it
+        // Profile doesn't exist for this user ID
+        // Check if there's an existing profile with the same email (from different auth provider)
+        if (userEmail) {
+          const { data: existingProfile } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('email', userEmail)
+            .single()
+
+          if (existingProfile) {
+            // Update the existing profile's ID to the new user ID
+            // This handles the case where user logged in with different provider
+            console.log('Migrating profile to new auth provider:', userId)
+            const { data: updatedProfile, error: updateError } = await supabase
+              .from('profiles')
+              .update({ id: userId })
+              .eq('email', userEmail)
+              .select()
+              .single()
+
+            if (!updateError && updatedProfile) {
+              setProfile(updatedProfile as Profile)
+              return
+            }
+          }
+        }
+
+        // No existing profile found, create new one
         console.log('Creating profile for user:', userId)
         const { data: newProfile, error: insertError } = await supabase
           .from('profiles')
@@ -52,7 +79,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (!insertError && newProfile) {
           setProfile(newProfile as Profile)
         } else {
-          console.error('Failed to create profile:', insertError)
+          // If insert fails due to email conflict, try to get the existing profile
+          if (insertError?.code === '23505' && userEmail) {
+            const { data: existingProfile } = await supabase
+              .from('profiles')
+              .select('*')
+              .eq('email', userEmail)
+              .single()
+
+            if (existingProfile) {
+              setProfile(existingProfile as Profile)
+            }
+          } else {
+            console.error('Failed to create profile:', insertError)
+          }
         }
       } else if (!error && data) {
         setProfile(data as Profile)

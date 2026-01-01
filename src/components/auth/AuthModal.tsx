@@ -66,6 +66,10 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       if (error) {
         if (error.message.includes('provider is not enabled')) {
           setError('GitHubログインは現在利用できません。メールでログインしてください。')
+        } else if (error.message.includes('email already in use') || error.message.includes('already registered')) {
+          setError('このメールアドレスは既にメールで登録されています。メールでログインしてください。')
+        } else if (error.message.includes('identity already exists')) {
+          setError('このアカウントは既に別の方法で登録されています。')
         } else {
           setError(error.message)
         }

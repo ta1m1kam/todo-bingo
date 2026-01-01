@@ -82,11 +82,15 @@ export function BingoCardProvider({ children }: { children: React.ReactNode }) {
         if (activeCard) {
           setActiveCardId(activeCard.id)
         } else if (cardList.length > 0) {
-          setActiveCardId(cardList[0].id)
-          await supabase
+          const { error: activateError } = await supabase
             .from('bingo_cards')
             .update({ is_active: true })
             .eq('id', cardList[0].id)
+
+          if (!activateError) {
+            setActiveCardId(cardList[0].id)
+            cardList[0].isActive = true
+          }
         }
       }
     } catch (error) {
@@ -111,15 +115,25 @@ export function BingoCardProvider({ children }: { children: React.ReactNode }) {
     try {
       const supabase = createClient()
 
-      await supabase
+      const { error: deactivateError } = await supabase
         .from('bingo_cards')
         .update({ is_active: false })
         .eq('user_id', user.id)
 
-      await supabase
+      if (deactivateError) {
+        console.error('Failed to deactivate cards:', deactivateError)
+        return
+      }
+
+      const { error: activateError } = await supabase
         .from('bingo_cards')
         .update({ is_active: true })
         .eq('id', cardId)
+
+      if (activateError) {
+        console.error('Failed to activate card:', activateError)
+        return
+      }
 
       setActiveCardId(cardId)
       setCards(prev => prev.map(c => ({
@@ -170,7 +184,13 @@ export function BingoCardProvider({ children }: { children: React.ReactNode }) {
         is_free: c.is_free,
       }))
 
-      await supabase.from('bingo_cells').insert(cellsToInsert)
+      const { error: cellsError } = await supabase.from('bingo_cells').insert(cellsToInsert)
+
+      if (cellsError) {
+        await supabase.from('bingo_cards').delete().eq('id', newCard.id)
+        console.error('Failed to create cells:', cellsError)
+        return null
+      }
 
       const newCardSummary: BingoCardSummary = {
         id: newCard.id,
