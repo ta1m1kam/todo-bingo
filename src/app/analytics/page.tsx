@@ -21,6 +21,7 @@ export default function AnalyticsPage() {
           <div className="max-w-4xl mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
+                <HamburgerMenu />
                 <Link
                   href="/"
                   className="p-2 rounded-full hover:bg-gray-100 transition-colors"
@@ -35,7 +36,6 @@ export default function AnalyticsPage() {
                   <p className="text-gray-500 text-sm">達成状況を確認</p>
                 </div>
               </div>
-              <HamburgerMenu />
             </div>
           </div>
         </header>
@@ -56,6 +56,7 @@ export default function AnalyticsPage() {
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
+              <HamburgerMenu />
               <Link
                 href="/"
                 className="p-2 rounded-full hover:bg-gray-100 transition-colors"
@@ -70,7 +71,6 @@ export default function AnalyticsPage() {
                 <p className="text-gray-500 text-sm">達成状況を確認</p>
               </div>
             </div>
-            <HamburgerMenu />
           </div>
         </div>
       </header>

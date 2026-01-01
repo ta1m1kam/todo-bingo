@@ -90,6 +90,7 @@ export default function GoalsPage() {
           <div className="max-w-4xl mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
+                <HamburgerMenu />
                 <Link
                   href="/"
                   className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
@@ -103,7 +104,6 @@ export default function GoalsPage() {
                   <p className="text-sm text-gray-500">リスト形式で簡単に入力</p>
                 </div>
               </div>
-              <HamburgerMenu />
             </div>
           </div>
         </header>
@@ -125,6 +125,7 @@ export default function GoalsPage() {
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
+              <HamburgerMenu />
               <Link
                 href="/"
                 className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
@@ -156,7 +157,6 @@ export default function GoalsPage() {
               >
                 次の空欄へ
               </button>
-              <HamburgerMenu />
             </div>
           </div>
         </div>

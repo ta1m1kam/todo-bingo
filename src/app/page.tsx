@@ -63,13 +63,13 @@ export default function Home() {
         <header className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-10">
           <div className="max-w-4xl mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
-              <h1 className="text-2xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(to right, var(--theme-primary), var(--theme-secondary))' }}>
-                Todo Bingo
-              </h1>
               <div className="flex items-center gap-3">
-                <UserMenu />
                 <HamburgerMenu />
+                <h1 className="text-2xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(to right, var(--theme-primary), var(--theme-secondary))' }}>
+                  Todo Bingo
+                </h1>
               </div>
+              <UserMenu />
             </div>
           </div>
         </header>
@@ -110,16 +110,19 @@ export default function Home() {
       <header className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(to right, var(--theme-primary), var(--theme-secondary))' }}>
-                Todo Bingo
-              </h1>
-              {hasGoals && (
-                <p className="text-sm text-gray-500">
-                  {stats.completedCells}/{filledCells} 達成
-                  {stats.bingoLines > 0 && ` · ${stats.bingoLines} ビンゴ`}
-                </p>
-              )}
+            <div className="flex items-center gap-3">
+              <HamburgerMenu />
+              <div>
+                <h1 className="text-2xl font-bold bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(to right, var(--theme-primary), var(--theme-secondary))' }}>
+                  Todo Bingo
+                </h1>
+                {hasGoals && (
+                  <p className="text-sm text-gray-500">
+                    {stats.completedCells}/{filledCells} 達成
+                    {stats.bingoLines > 0 && ` · ${stats.bingoLines} ビンゴ`}
+                  </p>
+                )}
+              </div>
             </div>
             <div className="flex items-center gap-2">
               {isSaving && (
@@ -135,7 +138,6 @@ export default function Home() {
                 </svg>
               </button>
               <UserMenu />
-              <HamburgerMenu />
             </div>
           </div>
         </div>
