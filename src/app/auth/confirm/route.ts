@@ -1,13 +1,14 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { NextResponse } from 'next/server'
+import { NextResponse, type NextRequest } from 'next/server'
 
-export async function GET(request: Request) {
+export async function GET(request: NextRequest) {
   const { searchParams, origin } = new URL(request.url)
-  const code = searchParams.get('code')
+  const token_hash = searchParams.get('token_hash')
+  const type = searchParams.get('type')
   const next = searchParams.get('next') ?? '/'
 
-  if (code) {
+  if (token_hash && type) {
     const cookieStore = await cookies()
 
     const supabase = createServerClient(
@@ -31,13 +32,16 @@ export async function GET(request: Request) {
       }
     )
 
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    const { error } = await supabase.auth.verifyOtp({
+      type: type as 'signup' | 'recovery' | 'invite' | 'email',
+      token_hash,
+    })
 
     if (!error) {
       return NextResponse.redirect(`${origin}${next}`)
     }
 
-    console.error('Auth callback error:', error)
+    console.error('Email confirmation error:', error)
   }
 
   return NextResponse.redirect(`${origin}/auth/error`)

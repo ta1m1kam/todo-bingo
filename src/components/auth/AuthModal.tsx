@@ -31,16 +31,26 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
       if (mode === 'login') {
         const { error } = await signInWithEmail(email, password)
         if (error) {
-          setError(error.message)
+          if (error.message.includes('Invalid login credentials')) {
+            setError('メールアドレスまたはパスワードが正しくありません')
+          } else if (error.message.includes('Email not confirmed')) {
+            setError('メールアドレスの確認が完了していません。確認メールをご確認ください。')
+          } else {
+            setError(error.message)
+          }
         } else {
           onClose()
         }
       } else {
         const { error } = await signUpWithEmail(email, password, displayName)
         if (error) {
-          setError(error.message)
+          if (error.message.includes('already registered')) {
+            setError('このメールアドレスは既に登録されています')
+          } else {
+            setError(error.message)
+          }
         } else {
-          setSuccessMessage('確認メールを送信しました。メールを確認してください。')
+          setSuccessMessage('登録が完了しました！確認メールをお送りしましたので、メール内のリンクをクリックして認証を完了してください。')
         }
       }
     } finally {
@@ -50,12 +60,29 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
   const handleOAuthSignIn = async (provider: 'google' | 'github') => {
     setError(null)
-    if (provider === 'google') {
-      const { error } = await signInWithGoogle()
-      if (error) setError(error.message)
-    } else {
-      const { error } = await signInWithGitHub()
-      if (error) setError(error.message)
+    setIsSubmitting(true)
+    try {
+      if (provider === 'google') {
+        const { error } = await signInWithGoogle()
+        if (error) {
+          if (error.message.includes('provider is not enabled')) {
+            setError('Googleログインは現在利用できません。メールでログインしてください。')
+          } else {
+            setError(error.message)
+          }
+        }
+      } else {
+        const { error } = await signInWithGitHub()
+        if (error) {
+          if (error.message.includes('provider is not enabled')) {
+            setError('GitHubログインは現在利用できません。メールでログインしてください。')
+          } else {
+            setError(error.message)
+          }
+        }
+      }
+    } finally {
+      setIsSubmitting(false)
     }
   }
 

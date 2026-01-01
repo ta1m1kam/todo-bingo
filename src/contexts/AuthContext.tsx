@@ -1,8 +1,8 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState, useCallback } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import type { User, Session } from '@supabase/supabase-js'
+import type { User, Session, SupabaseClient } from '@supabase/supabase-js'
 import type { Profile } from '@/types/database'
 
 interface AuthContextType {
@@ -26,48 +26,57 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
 
-  const fetchProfile = useCallback(async (userId: string) => {
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('id', userId)
-      .single()
+  const fetchProfile = useCallback(async (userId: string, client: SupabaseClient) => {
+    try {
+      const { data, error } = await client
+        .from('profiles')
+        .select('*')
+        .eq('id', userId)
+        .single()
 
-    if (!error && data) {
-      setProfile(data)
+      if (!error && data) {
+        setProfile(data as Profile)
+      }
+    } catch (e) {
+      console.error('Failed to fetch profile:', e)
     }
-  }, [supabase])
+  }, [])
 
   const refreshProfile = useCallback(async () => {
     if (user) {
-      await fetchProfile(user.id)
+      await fetchProfile(user.id, supabase)
     }
-  }, [user, fetchProfile])
+  }, [user, fetchProfile, supabase])
 
   useEffect(() => {
     const initAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
 
-      if (session) {
-        setSession(session)
-        setUser(session.user)
-        await fetchProfile(session.user.id)
+        if (session) {
+          setSession(session)
+          setUser(session.user)
+          await fetchProfile(session.user.id, supabase)
+        }
+      } catch (e) {
+        console.error('Auth init error:', e)
+      } finally {
+        setIsLoading(false)
       }
-
-      setIsLoading(false)
     }
 
     initAuth()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('Auth state change:', event, session?.user?.email)
         setSession(session)
         setUser(session?.user ?? null)
 
         if (session?.user) {
-          await fetchProfile(session.user.id)
+          await fetchProfile(session.user.id, supabase)
         } else {
           setProfile(null)
         }
