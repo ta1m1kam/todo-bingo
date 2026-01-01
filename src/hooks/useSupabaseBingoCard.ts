@@ -30,7 +30,7 @@ const createInitialState = (size: BingoSize = 5, hasFreeCenter: boolean = false)
 })
 
 export function useSupabaseBingoCard() {
-  const { user } = useAuth()
+  const { user, isLoading: authLoading } = useAuth()
   const [cardState, setCardState] = useState<BingoCardState>(() => createInitialState())
   const [isLoaded, setIsLoaded] = useState(false)
   const [isSaving, setIsSaving] = useState(false)
@@ -38,6 +38,12 @@ export function useSupabaseBingoCard() {
 
   // Load from Supabase
   useEffect(() => {
+    // Wait for auth to finish loading
+    if (authLoading) {
+      return
+    }
+
+    // Not logged in - use local state
     if (!user) {
       setIsLoaded(true)
       return
@@ -128,7 +134,7 @@ export function useSupabaseBingoCard() {
     }
 
     loadFromSupabase()
-  }, [user])
+  }, [user, authLoading])
 
   const stats = useMemo(() =>
     calculateBingoStats(cardState.cells, cardState.size),

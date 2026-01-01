@@ -4,11 +4,11 @@ import Link from 'next/link'
 import { Dashboard } from '@/components/analytics'
 import { StreakCalendar, BadgeGrid } from '@/components/gamification'
 import { HamburgerMenu } from '@/components/ui'
-import { useBingoCard, useGameState } from '@/hooks'
+import { useSupabaseBingoCard, useGameState } from '@/hooks'
 import { BADGE_DEFINITIONS } from '@/types'
 
 export default function AnalyticsPage() {
-  const { cells, isLoaded: cardLoaded } = useBingoCard()
+  const { cells, isLoaded: cardLoaded } = useSupabaseBingoCard()
   const { gameState, isLoaded: gameLoaded } = useGameState()
 
   const isLoaded = cardLoaded && gameLoaded
