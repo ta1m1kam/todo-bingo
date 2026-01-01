@@ -13,6 +13,7 @@ import {
   StreakCalendar,
 } from '@/components/gamification'
 import { ShareButton, ShareModal, Ranking } from '@/components/social'
+import { Dashboard } from '@/components/analytics'
 import { useBingoCard, useGameState } from '@/hooks'
 import { BADGE_DEFINITIONS } from '@/types'
 import type { BingoMode } from '@/types'
@@ -22,6 +23,7 @@ export default function Home() {
   const [showCalendar, setShowCalendar] = useState(false)
   const [showRanking, setShowRanking] = useState(false)
   const [showShareModal, setShowShareModal] = useState(false)
+  const [showDashboard, setShowDashboard] = useState(false)
 
   const {
     size,
@@ -252,6 +254,33 @@ export default function Home() {
           badges={BADGE_DEFINITIONS}
           earnedBadgeIds={gameState.earnedBadgeIds}
         />
+
+        {/* Dashboard Toggle */}
+        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+          <button
+            onClick={() => setShowDashboard(!showDashboard)}
+            className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors"
+          >
+            <h3 className="font-medium text-gray-800 flex items-center gap-2">
+              <span>📊</span> ダッシュボード
+            </h3>
+            <span className="text-gray-400">{showDashboard ? '▲' : '▼'}</span>
+          </button>
+          {showDashboard && (
+            <div className="border-t p-4">
+              <Dashboard
+                totalPoints={gameState.totalPoints}
+                level={gameState.level}
+                totalCellsCompleted={gameState.totalCellsCompleted}
+                totalBingos={gameState.totalBingos}
+                earnedBadgeIds={gameState.earnedBadgeIds}
+                maxStreak={gameState.maxStreak}
+                activityDates={gameState.activityDates}
+                cells={cells}
+              />
+            </div>
+          )}
+        </div>
 
         {/* Ranking Toggle */}
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
