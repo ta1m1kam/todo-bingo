@@ -155,7 +155,7 @@ export function ShareModal({
     // Footer
     ctx.fillStyle = 'rgba(255,255,255,0.6)'
     ctx.font = '12px sans-serif'
-    ctx.fillText('#TodoBingo #目標達成 #2025年の目標', width / 2, height - 15)
+    ctx.fillText('#とぅーどぅーびんご #目標達成', width / 2, height - 15)
   }, [cells, size, bingoLines, completionRate, level, title])
 
   useEffect(() => {

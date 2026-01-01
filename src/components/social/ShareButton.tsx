@@ -165,7 +165,7 @@ function generateShareText(data: ShareData): string {
   }
 
   lines.push('')
-  lines.push('#TodoBingo #目標達成 #2025年の目標')
+  lines.push('#とぅーどぅーびんご #目標達成')
 
   return lines.join('\n')
 }

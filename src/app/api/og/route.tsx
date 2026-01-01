@@ -127,7 +127,7 @@ export async function GET(request: NextRequest) {
             color: 'rgba(255,255,255,0.7)',
           }}
         >
-          #TodoBingo #目標達成
+          #とぅーどぅーびんご #目標達成
         </div>
       </div>
     ),
