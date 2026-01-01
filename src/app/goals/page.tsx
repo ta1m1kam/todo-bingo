@@ -16,7 +16,14 @@ export default function GoalsPage() {
     isSaving,
     updateCell,
     setTitle,
+    resetCard,
   } = useSupabaseBingoCard()
+
+  const handleClearAll = useCallback(() => {
+    if (window.confirm('すべての目標をクリアしますか？\nこの操作は取り消せません。')) {
+      resetCard()
+    }
+  }, [resetCard])
 
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
@@ -77,7 +84,7 @@ export default function GoalsPage() {
 
   if (!isLoaded) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom right, var(--theme-background), color-mix(in srgb, var(--theme-secondary) 15%, var(--theme-background)))' }}>
         {/* Header with navigation during loading */}
         <header className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-10">
           <div className="max-w-4xl mx-auto px-4 py-4">
@@ -112,7 +119,7 @@ export default function GoalsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom right, var(--theme-background), color-mix(in srgb, var(--theme-secondary) 15%, var(--theme-background)))' }}>
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
@@ -160,8 +167,8 @@ export default function GoalsPage() {
         <div className="max-w-4xl mx-auto px-4">
           <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-300"
-              style={{ width: `${(filledCells / editableCells) * 100}%` }}
+              className="h-full transition-all duration-300"
+              style={{ width: `${(filledCells / editableCells) * 100}%`, background: 'linear-gradient(to right, var(--theme-primary), var(--theme-secondary))' }}
             />
           </div>
         </div>
@@ -295,13 +302,21 @@ export default function GoalsPage() {
         </div>
 
         {/* Actions */}
-        <div className="mt-6 flex justify-center gap-4">
+        <div className="mt-6 flex flex-col items-center gap-4">
           <Link
             href="/"
-            className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-shadow"
+            className="px-6 py-3 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-shadow"
+            style={{ background: 'linear-gradient(to right, var(--theme-primary), var(--theme-secondary))' }}
           >
             ビンゴカードに戻る
           </Link>
+          <button
+            onClick={handleClearAll}
+            disabled={filledCells === 0}
+            className="px-4 py-2 text-sm text-red-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            すべての目標をクリア
+          </button>
         </div>
       </main>
     </div>

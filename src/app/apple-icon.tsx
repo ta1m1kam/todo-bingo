@@ -52,7 +52,7 @@ export default function AppleIcon() {
                       color: 'white',
                     }}
                   >
-                    {isCompleted ? '✓' : ''}
+                    {isCompleted ? '' : ''}
                   </div>
                 )
               })}

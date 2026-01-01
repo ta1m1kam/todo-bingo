@@ -89,7 +89,7 @@ export default async function Image() {
                       boxShadow: isCompleted ? '0 4px 12px rgba(0,0,0,0.2)' : 'none',
                     }}
                   >
-                    {isCompleted ? '✓' : isCenter ? '🎯' : ''}
+                    {''}
                   </div>
                 )
               })}

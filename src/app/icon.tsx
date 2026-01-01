@@ -53,7 +53,7 @@ export default function Icon() {
                       color: 'white',
                     }}
                   >
-                    {isCompleted ? '✓' : ''}
+                    {isCompleted ? '' : ''}
                   </div>
                 )
               })}

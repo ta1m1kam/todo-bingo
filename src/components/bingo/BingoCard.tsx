@@ -28,9 +28,10 @@ export function BingoCard({ cells, size, mode, title, onCellUpdate }: BingoCardP
         <h2 className="text-2xl font-bold text-center mb-4 text-gray-800">{title}</h2>
       )}
       <div
-        className="grid gap-2 p-4 bg-gradient-to-br from-blue-50 to-indigo-100 rounded-xl shadow-lg"
+        className="grid gap-2 p-4 rounded-xl shadow-lg"
         style={{
           gridTemplateColumns: `repeat(${size}, minmax(0, 1fr))`,
+          background: `linear-gradient(to bottom right, var(--theme-background), color-mix(in srgb, var(--theme-primary) 20%, var(--theme-background)))`,
         }}
       >
         {sortedCells.map((cell) => (

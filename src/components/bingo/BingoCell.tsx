@@ -58,22 +58,36 @@ export function BingoCell({ cell, mode, isInCompletedLine, size, onUpdate }: Bin
   const cellSize = size <= 5 ? 'min-h-[80px]' : size <= 7 ? 'min-h-[60px]' : 'min-h-[50px]'
   const fontSize = size <= 5 ? 'text-sm' : size <= 7 ? 'text-xs' : 'text-[10px]'
 
+  const getCellStyle = () => {
+    if (cell.is_free) {
+      return { background: 'linear-gradient(to bottom right, #fef3c7, #fde68a)' }
+    }
+    if (cell.is_completed) {
+      if (isInCompletedLine) {
+        return { background: `linear-gradient(to bottom right, var(--theme-completed), color-mix(in srgb, var(--theme-completed) 80%, black))` }
+      }
+      return { background: `linear-gradient(to bottom right, color-mix(in srgb, var(--theme-completed) 30%, white), color-mix(in srgb, var(--theme-completed) 40%, white))` }
+    }
+    return { background: 'var(--theme-cell)' }
+  }
+
   return (
     <div
       className={`
         relative ${cellSize} p-2 rounded-lg border-2 transition-all duration-200
         flex items-center justify-center text-center
         ${cell.is_free
-          ? 'bg-gradient-to-br from-yellow-100 to-yellow-200 border-yellow-400 cursor-default'
+          ? 'border-yellow-400 cursor-default'
           : cell.is_completed
             ? isInCompletedLine
-              ? 'bg-gradient-to-br from-green-400 to-emerald-500 border-green-600 text-white shadow-lg scale-[1.02]'
-              : 'bg-gradient-to-br from-green-100 to-green-200 border-green-400 text-green-800'
+              ? 'border-[color:var(--theme-completed)] text-white shadow-lg scale-[1.02]'
+              : 'border-[color:var(--theme-completed)] text-green-800'
             : mode === 'edit'
-              ? 'bg-white border-gray-300 hover:border-blue-400 hover:shadow-md cursor-text text-gray-900'
-              : 'bg-white border-gray-300 hover:border-gray-400 hover:shadow-md cursor-pointer text-gray-900'
+              ? 'border-gray-300 hover:border-blue-400 hover:shadow-md cursor-text text-gray-900'
+              : 'border-gray-300 hover:border-gray-400 hover:shadow-md cursor-pointer text-gray-900'
         }
       `}
+      style={getCellStyle()}
       onClick={handleClick}
     >
       {cell.is_free ? (

@@ -72,7 +72,8 @@ export function ShareButton({ data, onShare }: ShareButtonProps) {
     <div className="relative">
       <button
         onClick={() => setShowMenu(!showMenu)}
-        className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-full font-medium hover:opacity-90 transition-opacity shadow-md"
+        className="flex items-center gap-2 px-4 py-2 text-white rounded-full font-medium hover:opacity-90 transition-opacity shadow-md"
+        style={{ background: 'linear-gradient(to right, var(--theme-primary), var(--theme-secondary))' }}
       >
         <ShareIcon />
         シェア

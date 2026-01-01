@@ -2,11 +2,21 @@
 
 import Link from 'next/link'
 import { ThemeSelector } from '@/components/settings'
+import { SizeSelector } from '@/components/bingo'
 import { HamburgerMenu } from '@/components/ui'
+import { useSupabaseBingoCard } from '@/hooks'
 
 export default function SettingsPage() {
+  const {
+    size,
+    hasFreeCenter,
+    isLoaded,
+    changeSize,
+    toggleFreeCenter,
+  } = useSupabaseBingoCard()
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom right, var(--theme-background), color-mix(in srgb, var(--theme-secondary) 15%, var(--theme-background)))' }}>
       <header className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
@@ -31,6 +41,43 @@ export default function SettingsPage() {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+        {/* Bingo Card Size Settings */}
+        <div className="bg-white rounded-xl shadow-md p-4">
+          <h3 className="font-medium text-gray-800 mb-4 flex items-center gap-2">
+            <span>📐</span> ビンゴカードサイズ
+          </h3>
+          {isLoaded ? (
+            <div className="space-y-4">
+              <SizeSelector
+                size={size}
+                onSizeChange={changeSize}
+              />
+              <p className="text-xs text-orange-500">
+                ⚠️ サイズを変更すると現在の目標はリセットされます
+              </p>
+
+              <div className="border-t pt-4 mt-4">
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={hasFreeCenter}
+                    onChange={(e) => toggleFreeCenter(e.target.checked)}
+                    className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <div>
+                    <span className="font-medium text-gray-700">中央をFREEマスにする</span>
+                    <p className="text-sm text-gray-500">奇数サイズの場合のみ有効</p>
+                  </div>
+                </label>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-center py-4">
+              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
+            </div>
+          )}
+        </div>
+
         <ThemeSelector />
 
         <div className="bg-white rounded-xl shadow-md p-4">
@@ -46,7 +93,8 @@ export default function SettingsPage() {
         <div className="flex justify-center">
           <Link
             href="/"
-            className="px-6 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            className="px-6 py-2 text-white rounded-lg hover:opacity-90 transition-colors"
+            style={{ background: 'linear-gradient(to right, var(--theme-primary), var(--theme-secondary))' }}
           >
             ホームに戻る
           </Link>
