@@ -210,11 +210,20 @@ export default function GoalsPage() {
             </div>
           ) : (
             <div className="text-center">
-              <div className="text-5xl mb-4">📋</div>
-              <div className="text-xl text-gray-700 mb-2">ビンゴカードがありません</div>
-              <Link href="/" className="text-blue-600 hover:underline">
-                ホームでカードを作成
-              </Link>
+              <div className="text-5xl mb-4">🎯</div>
+              <div className="text-xl text-gray-700 mb-2">ビンゴカードを作成しましょう</div>
+              <p className="text-gray-500 mb-6">目標を設定してビンゴを達成しよう！</p>
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="inline-block px-6 py-3 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-shadow"
+                style={{ backgroundColor: 'var(--theme-primary)' }}
+              >
+                最初のカードを作成
+              </button>
+              <CreateCardModal
+                isOpen={showCreateModal}
+                onClose={() => setShowCreateModal(false)}
+              />
             </div>
           )}
         </div>

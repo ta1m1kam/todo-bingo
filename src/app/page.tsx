@@ -161,8 +161,24 @@ export default function Home() {
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
+        {/* No Cards - Show Create Card */}
+        {cards.length === 0 && (
+          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-8 text-center">
+            <div className="text-5xl mb-4">🎯</div>
+            <h2 className="text-xl font-bold text-gray-800 mb-2">ビンゴカードを作成しましょう</h2>
+            <p className="text-gray-600 mb-6">目標を設定してビンゴを達成しよう！</p>
+            <button
+              onClick={() => setShowCreateModal(true)}
+              className="inline-block px-6 py-3 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-shadow"
+              style={{ backgroundColor: 'var(--theme-primary)' }}
+            >
+              最初のカードを作成
+            </button>
+          </div>
+        )}
+
         {/* No Goals Warning */}
-        {!hasGoals && (
+        {cards.length > 0 && !hasGoals && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 text-center">
             <p className="text-yellow-800 mb-3">まずは目標を入力しましょう</p>
             <Link
