@@ -172,9 +172,11 @@ export function useActiveBingoCard() {
   }, [user, cardState.cardId, cardState.cells, cardState.size])
 
   const setTitle = useCallback(async (title: string) => {
-    if (!user || !cardState.cardId) return
-
+    // Always update local state first
     setCardState(prev => ({ ...prev, title }))
+
+    // Only save to DB if user and cardId exist
+    if (!user || !cardState.cardId) return
 
     try {
       const supabase = createClient()
