@@ -126,24 +126,32 @@ export function useActiveBingoCard() {
   ): Promise<{ wasCompletion: boolean; prevBingoLines: number }> => {
     let wasCompletion = false
     let bingoLinesBefore = 0
+    let cellGoalText: string | undefined
+    let cellIsCompleted: boolean | undefined
 
-    const cell = cardState.cells.find(c => c.position === position)
-    if (cell && !cell.is_completed && updates.is_completed) {
-      wasCompletion = true
-      bingoLinesBefore = calculateBingoStats(cardState.cells, cardState.size).bingoLines
-    }
+    // Use functional update to ensure we always work with the latest state
+    // This is critical when multiple updateCell calls happen in parallel
+    setCardState(prev => {
+      const cell = prev.cells.find(c => c.position === position)
+      cellGoalText = cell?.goal_text
+      cellIsCompleted = cell?.is_completed
 
-    // Always update local state for responsive UI
-    const newCells = cardState.cells.map(c =>
-      c.position === position ? { ...c, ...updates } : c
-    )
+      if (cell && !cell.is_completed && updates.is_completed) {
+        wasCompletion = true
+        bingoLinesBefore = calculateBingoStats(prev.cells, prev.size).bingoLines
+      }
 
-    setCardState(prev => ({ ...prev, cells: newCells }))
+      const newCells = prev.cells.map(c =>
+        c.position === position ? { ...c, ...updates } : c
+      )
 
-    if (wasCompletion) {
-      const newStats = calculateBingoStats(newCells, cardState.size)
-      setPrevBingoLines(newStats.bingoLines)
-    }
+      if (wasCompletion) {
+        const newStats = calculateBingoStats(newCells, prev.size)
+        setPrevBingoLines(newStats.bingoLines)
+      }
+
+      return { ...prev, cells: newCells }
+    })
 
     // Only save to DB if user and cardId exist
     if (!user || !cardState.cardId) {
@@ -156,8 +164,8 @@ export function useActiveBingoCard() {
       await supabase
         .from('bingo_cells')
         .update({
-          goal_text: updates.goal_text !== undefined ? updates.goal_text : cell?.goal_text,
-          is_completed: updates.is_completed !== undefined ? updates.is_completed : cell?.is_completed,
+          goal_text: updates.goal_text !== undefined ? updates.goal_text : cellGoalText,
+          is_completed: updates.is_completed !== undefined ? updates.is_completed : cellIsCompleted,
           completed_at: updates.is_completed ? new Date().toISOString() : null,
         })
         .eq('card_id', cardState.cardId)
@@ -169,7 +177,7 @@ export function useActiveBingoCard() {
     }
 
     return { wasCompletion, prevBingoLines: bingoLinesBefore }
-  }, [user, cardState.cardId, cardState.cells, cardState.size])
+  }, [user, cardState.cardId])
 
   const setTitle = useCallback(async (title: string) => {
     // Always update local state first
