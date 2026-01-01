@@ -101,7 +101,7 @@ export function CreateCardModal({ isOpen, onClose }: CreateCardModalProps) {
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="例: 2025年の仕事目標"
+              placeholder="例: 仕事の目標、健康チャレンジ"
               maxLength={50}
               disabled={!canCreateCard || isCreating}
               className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed text-gray-900 placeholder-gray-400"

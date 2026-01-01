@@ -69,7 +69,7 @@ export function HamburgerMenu() {
             className="fixed inset-0 bg-black/20 z-40"
             onClick={() => setIsOpen(false)}
           />
-          <div className="absolute right-0 mt-2 w-64 bg-white rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
+          <div className="absolute left-0 mt-2 w-64 bg-white rounded-xl shadow-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
             <nav className="py-2">
               {menuItems.map((item) => {
                 const isActive = pathname === item.href

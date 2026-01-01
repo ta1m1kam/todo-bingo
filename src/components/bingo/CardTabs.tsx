@@ -9,41 +9,55 @@ interface CardTabsProps {
 
 export function CardTabs({ onCreateClick }: CardTabsProps) {
   const { cards, activeCardId, switchCard, deleteCard, canCreateCard, isLoading } = useBingoCards()
-  const [menuOpenId, setMenuOpenId] = useState<string | null>(null)
-  const menuRef = useRef<HTMLDivElement>(null)
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
+
+  const activeIndex = cards.findIndex(c => c.id === activeCardId)
+  const activeCard = cards[activeIndex]
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setMenuOpenId(null)
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setIsDropdownOpen(false)
       }
     }
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [isDropdownOpen])
 
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [])
+  const handlePrev = () => {
+    if (activeIndex > 0) {
+      switchCard(cards[activeIndex - 1].id)
+    }
+  }
+
+  const handleNext = () => {
+    if (activeIndex < cards.length - 1) {
+      switchCard(cards[activeIndex + 1].id)
+    }
+  }
 
   const handleDelete = async (cardId: string, e: React.MouseEvent) => {
     e.stopPropagation()
-    if (cardId === activeCardId) {
-      alert('アクティブなカードは削除できません。別のカードに切り替えてから削除してください。')
-      return
-    }
-    if (cards.length <= 1) {
-      alert('最後のカードは削除できません。')
-      return
-    }
-    if (window.confirm('このカードを削除しますか？この操作は取り消せません。')) {
+    if (cardId === activeCardId) return
+    if (cards.length <= 1) return
+    if (window.confirm('このカードを削除しますか？\nこの操作は取り消せません。')) {
       await deleteCard(cardId)
+      setIsDropdownOpen(false)
     }
-    setMenuOpenId(null)
+  }
+
+  const handleCardSelect = (cardId: string) => {
+    switchCard(cardId)
+    setIsDropdownOpen(false)
   }
 
   if (isLoading) {
     return (
-      <div className="flex items-center gap-2 px-4 py-2 bg-white/50 rounded-lg">
-        <div className="animate-pulse h-8 w-24 bg-gray-200 rounded-lg"></div>
-        <div className="animate-pulse h-8 w-24 bg-gray-200 rounded-lg"></div>
+      <div className="flex items-center justify-center gap-2 px-4 py-2">
+        <div className="animate-pulse h-12 w-full max-w-sm bg-gray-200 rounded-xl"></div>
       </div>
     )
   }
@@ -52,77 +66,144 @@ export function CardTabs({ onCreateClick }: CardTabsProps) {
     return null
   }
 
+  const hasPrev = activeIndex > 0
+  const hasNext = activeIndex < cards.length - 1
+
   return (
-    <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
-      {cards.map((card) => (
-        <div key={card.id} className="relative flex-shrink-0">
-          <button
-            onClick={() => switchCard(card.id)}
-            className={`
-              px-4 py-2 rounded-lg text-sm font-medium transition-all
-              flex items-center gap-2 min-w-[100px] max-w-[160px]
-              ${card.id === activeCardId
-                ? 'bg-gradient-to-r text-white shadow-md'
-                : 'bg-white/80 text-gray-700 hover:bg-white hover:shadow-sm'
-              }
-            `}
-            style={card.id === activeCardId ? {
-              backgroundImage: 'linear-gradient(to right, var(--theme-primary), var(--theme-secondary))'
-            } : undefined}
+    <div className="flex items-center justify-center gap-2 px-2">
+      {/* Previous Button */}
+      <button
+        onClick={handlePrev}
+        disabled={!hasPrev}
+        className={`
+          p-3 rounded-full transition-all flex-shrink-0
+          ${hasPrev
+            ? 'bg-white shadow-md hover:shadow-lg hover:scale-105 text-gray-700'
+            : 'bg-gray-100 text-gray-300 cursor-not-allowed'
+          }
+        `}
+        title="前のカード"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+
+      {/* Card Selector */}
+      <div className="relative flex-1 max-w-sm" ref={dropdownRef}>
+        <button
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          className="
+            w-full px-4 py-3 rounded-xl
+            bg-white shadow-md hover:shadow-lg
+            flex items-center justify-between gap-2
+            transition-all
+          "
+        >
+          <div className="flex-1 min-w-0 text-left">
+            <div className="text-sm text-gray-500 flex items-center gap-1">
+              <span>{activeIndex + 1}/{cards.length}</span>
+              {canCreateCard && <span className="text-xs">（最大5枚）</span>}
+            </div>
+            <div className="font-bold text-gray-800 truncate">
+              {activeCard?.title || 'カードを選択'}
+            </div>
+          </div>
+          <svg
+            className={`w-5 h-5 text-gray-500 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            <span className="truncate">{card.title}</span>
-            {cards.length > 1 && (
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </button>
+
+        {/* Dropdown */}
+        {isDropdownOpen && (
+          <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-200 z-20 overflow-hidden">
+            <div className="max-h-64 overflow-y-auto">
+              {cards.map((card, index) => {
+                const isActive = card.id === activeCardId
+                const canDelete = cards.length > 1 && !isActive
+
+                return (
+                  <div
+                    key={card.id}
+                    className={`
+                      flex items-center justify-between gap-2 px-4 py-3
+                      ${isActive ? 'bg-blue-50' : 'hover:bg-gray-50'}
+                      ${index !== cards.length - 1 ? 'border-b border-gray-100' : ''}
+                      cursor-pointer
+                    `}
+                    onClick={() => handleCardSelect(card.id)}
+                  >
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <span className="text-sm text-gray-400 w-6">{index + 1}</span>
+                      <span className={`truncate ${isActive ? 'font-bold text-blue-600' : 'text-gray-700'}`}>
+                        {card.title}
+                      </span>
+                      {isActive && (
+                        <span className="flex-shrink-0 w-2 h-2 rounded-full bg-blue-500"></span>
+                      )}
+                    </div>
+                    {canDelete && (
+                      <button
+                        onClick={(e) => handleDelete(card.id, e)}
+                        className="p-1.5 rounded-lg hover:bg-red-100 text-gray-400 hover:text-red-500 transition-colors"
+                        title="削除"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Create New Button in Dropdown */}
+            {canCreateCard && (
               <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  setMenuOpenId(menuOpenId === card.id ? null : card.id)
+                onClick={() => {
+                  setIsDropdownOpen(false)
+                  onCreateClick()
                 }}
-                className={`
-                  ml-auto p-1 rounded-full transition-colors
-                  ${card.id === activeCardId
-                    ? 'hover:bg-white/20'
-                    : 'hover:bg-gray-200'
-                  }
-                `}
+                className="
+                  w-full px-4 py-3 border-t border-gray-200
+                  flex items-center justify-center gap-2
+                  text-gray-600 hover:bg-gray-50 transition-colors
+                  font-medium
+                "
               >
-                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                 </svg>
+                新しいカードを作成
               </button>
             )}
-          </button>
+          </div>
+        )}
+      </div>
 
-          {menuOpenId === card.id && (
-            <div
-              ref={menuRef}
-              className="absolute top-full left-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 z-20 min-w-[120px]"
-            >
-              <button
-                onClick={(e) => handleDelete(card.id, e)}
-                disabled={card.id === activeCardId || cards.length <= 1}
-                className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-                削除
-              </button>
-            </div>
-          )}
-        </div>
-      ))}
-
-      {canCreateCard && (
-        <button
-          onClick={onCreateClick}
-          className="flex-shrink-0 px-3 py-2 rounded-lg bg-white/80 text-gray-600 hover:bg-white hover:shadow-sm transition-all flex items-center gap-1 text-sm font-medium"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          新規
-        </button>
-      )}
+      {/* Next Button */}
+      <button
+        onClick={handleNext}
+        disabled={!hasNext}
+        className={`
+          p-3 rounded-full transition-all flex-shrink-0
+          ${hasNext
+            ? 'bg-white shadow-md hover:shadow-lg hover:scale-105 text-gray-700'
+            : 'bg-gray-100 text-gray-300 cursor-not-allowed'
+          }
+        `}
+        title="次のカード"
+      >
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
     </div>
   )
 }
