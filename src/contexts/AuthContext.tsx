@@ -26,16 +26,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  const fetchProfile = useCallback(async (userId: string) => {
+  const fetchProfile = useCallback(async (userId: string, userEmail?: string, userName?: string) => {
     try {
       const supabase = createClient()
+
+      // First try to get existing profile
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
         .single()
 
-      if (!error && data) {
+      if (error && error.code === 'PGRST116') {
+        // Profile doesn't exist, create it
+        console.log('Creating profile for user:', userId)
+        const { data: newProfile, error: insertError } = await supabase
+          .from('profiles')
+          .insert({
+            id: userId,
+            email: userEmail,
+            display_name: userName || userEmail?.split('@')[0] || 'User',
+          })
+          .select()
+          .single()
+
+        if (!insertError && newProfile) {
+          setProfile(newProfile as Profile)
+        } else {
+          console.error('Failed to create profile:', insertError)
+        }
+      } else if (!error && data) {
         setProfile(data as Profile)
       }
     } catch (e) {
@@ -65,7 +85,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           setSession(session)
           setUser(session.user)
           try {
-            await fetchProfile(session.user.id)
+            await fetchProfile(
+              session.user.id,
+              session.user.email,
+              session.user.user_metadata?.name
+            )
           } catch (profileError) {
             console.error('Profile fetch error:', profileError)
           }
@@ -88,7 +112,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null)
 
         if (session?.user) {
-          await fetchProfile(session.user.id)
+          await fetchProfile(
+            session.user.id,
+            session.user.email,
+            session.user.user_metadata?.name
+          )
         } else {
           setProfile(null)
         }

@@ -60,12 +60,14 @@ export function useGameState() {
       const supabase = createClient()
 
       try {
-        // Load profile data
-        const { data: profileData } = await supabase
+        // Load profile data (don't use .single() to avoid errors if profile doesn't exist yet)
+        const { data: profiles } = await supabase
           .from('profiles')
           .select('level, total_points, current_streak, max_streak, last_activity_date')
           .eq('id', user.id)
-          .single()
+          .limit(1)
+
+        const profileData = profiles?.[0] || null
 
         // Load earned badges
         const { data: badges } = await supabase
