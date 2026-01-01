@@ -119,32 +119,38 @@ export default function GoalsPage() {
     return localEdits[position] ?? cells.find(c => c.position === position)?.goal_text ?? ''
   }
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent, currentIndex: number) => {
-    if (e.key === 'Enter' || (e.key === 'Tab' && !e.shiftKey)) {
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>, currentIndex: number) => {
+    if (e.key === 'Enter') {
       e.preventDefault()
-      const nextIndex = currentIndex + 1
-      if (nextIndex < cells.length) {
-        const nextCell = cells[nextIndex]
-        if (!nextCell.is_free) {
-          inputRefs.current[nextIndex]?.focus()
-          setFocusedIndex(nextIndex)
-        } else if (nextIndex + 1 < cells.length) {
-          inputRefs.current[nextIndex + 1]?.focus()
-          setFocusedIndex(nextIndex + 1)
+      e.stopPropagation()
+
+      // Use setTimeout to ensure state is committed before focus change
+      setTimeout(() => {
+        let targetIndex = currentIndex + 1
+        while (targetIndex < cells.length && cells[targetIndex].is_free) {
+          targetIndex++
         }
+        if (targetIndex < cells.length) {
+          inputRefs.current[targetIndex]?.focus()
+        }
+      }, 0)
+    } else if (e.key === 'Tab' && !e.shiftKey) {
+      e.preventDefault()
+      let targetIndex = currentIndex + 1
+      while (targetIndex < cells.length && cells[targetIndex].is_free) {
+        targetIndex++
+      }
+      if (targetIndex < cells.length) {
+        inputRefs.current[targetIndex]?.focus()
       }
     } else if (e.key === 'Tab' && e.shiftKey) {
       e.preventDefault()
-      const prevIndex = currentIndex - 1
-      if (prevIndex >= 0) {
-        const prevCell = cells[prevIndex]
-        if (!prevCell.is_free) {
-          inputRefs.current[prevIndex]?.focus()
-          setFocusedIndex(prevIndex)
-        } else if (prevIndex - 1 >= 0) {
-          inputRefs.current[prevIndex - 1]?.focus()
-          setFocusedIndex(prevIndex - 1)
-        }
+      let targetIndex = currentIndex - 1
+      while (targetIndex >= 0 && cells[targetIndex].is_free) {
+        targetIndex--
+      }
+      if (targetIndex >= 0) {
+        inputRefs.current[targetIndex]?.focus()
       }
     }
   }, [cells])
@@ -403,6 +409,10 @@ export default function GoalsPage() {
                         name={`goal-${cell.position}`}
                         type="text"
                         autoComplete="off"
+                        autoCorrect="off"
+                        autoCapitalize="off"
+                        spellCheck={false}
+                        data-position={cell.position}
                         value={displayValue}
                         onChange={(e) => handleLocalChange(cell.position, e.target.value)}
                         onFocus={() => setFocusedIndex(index)}
