@@ -15,6 +15,7 @@ import {
 import { ShareButton, ShareModal, Ranking } from '@/components/social'
 import { Dashboard } from '@/components/analytics'
 import { AuthModal, UserMenu } from '@/components/auth'
+import { ThemeSelector } from '@/components/settings'
 import { useBingoCard, useGameState } from '@/hooks'
 import { useAuth } from '@/contexts/AuthContext'
 import { BADGE_DEFINITIONS } from '@/types'
@@ -333,6 +334,9 @@ export default function Home() {
             </div>
           )}
         </div>
+
+        {/* Theme Selector */}
+        <ThemeSelector />
 
         {/* Tips */}
         <div className="bg-white rounded-xl shadow-md p-4">
