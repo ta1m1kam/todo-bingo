@@ -1,22 +1,34 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
 import { ThemeSelector } from '@/components/settings'
-import { SizeSelector } from '@/components/bingo'
+import { SizeSelector, CardTabs, CreateCardModal } from '@/components/bingo'
 import { HamburgerMenu } from '@/components/ui'
-import { useSupabaseBingoCard } from '@/hooks'
+import { useActiveBingoCard, useBingoCards } from '@/hooks'
 
 export default function SettingsPage() {
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const { cards, isLoading: cardsLoading } = useBingoCards()
+
   const {
     size,
     hasFreeCenter,
-    isLoaded,
+    isLoaded: cardLoaded,
     changeSize,
     toggleFreeCenter,
-  } = useSupabaseBingoCard()
+  } = useActiveBingoCard()
+
+  const isLoaded = cardLoaded && !cardsLoading
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom right, var(--theme-background), color-mix(in srgb, var(--theme-secondary) 15%, var(--theme-background)))' }}>
+      {/* Create Card Modal */}
+      <CreateCardModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+      />
+
       <header className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
@@ -39,6 +51,13 @@ export default function SettingsPage() {
           </div>
         </div>
       </header>
+
+      {/* Card Tabs */}
+      {cards.length > 0 && (
+        <div className="max-w-4xl mx-auto px-4 pt-4">
+          <CardTabs onCreateClick={() => setShowCreateModal(true)} />
+        </div>
+      )}
 
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">
         {/* Bingo Card Size Settings */}

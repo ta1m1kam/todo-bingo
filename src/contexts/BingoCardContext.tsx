@@ -59,7 +59,15 @@ export function BingoCardProvider({ children }: { children: React.ReactNode }) {
       }
 
       if (data) {
-        const cardList: BingoCardSummary[] = data.map(card => ({
+        interface DbCard {
+          id: string
+          title: string
+          size: number
+          has_free_center: boolean
+          created_at: string
+          is_active: boolean
+        }
+        const cardList: BingoCardSummary[] = data.map((card: DbCard) => ({
           id: card.id,
           title: card.title,
           size: card.size,

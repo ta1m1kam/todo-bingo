@@ -12,7 +12,6 @@ interface AuthContextType {
   isLoading: boolean
   signInWithEmail: (email: string, password: string) => Promise<{ error: Error | null }>
   signUpWithEmail: (email: string, password: string, displayName?: string) => Promise<{ error: Error | null }>
-  signInWithGoogle: () => Promise<{ error: Error | null }>
   signInWithGitHub: () => Promise<{ error: Error | null }>
   signOut: () => Promise<void>
   refreshProfile: () => Promise<void>
@@ -156,17 +155,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return { error: error as Error | null }
   }
 
-  const signInWithGoogle = async () => {
-    const supabase = createClient()
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/auth/callback`,
-      },
-    })
-    return { error: error as Error | null }
-  }
-
   const signInWithGitHub = async () => {
     const supabase = createClient()
     const { error } = await supabase.auth.signInWithOAuth({
@@ -204,7 +192,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isLoading,
         signInWithEmail,
         signUpWithEmail,
-        signInWithGoogle,
         signInWithGitHub,
         signOut,
         refreshProfile,

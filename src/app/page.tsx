@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react'
 import Link from 'next/link'
-import { BingoCard } from '@/components/bingo'
+import { BingoCard, CardTabs, CreateCardModal } from '@/components/bingo'
 import {
   PointsGain,
   LevelUpPopup,
@@ -11,10 +11,13 @@ import {
 import { ShareModal } from '@/components/social'
 import { UserMenu } from '@/components/auth'
 import { HamburgerMenu } from '@/components/ui'
-import { useSupabaseBingoCard, useGameState } from '@/hooks'
+import { useActiveBingoCard, useGameState, useBingoCards } from '@/hooks'
 
 export default function Home() {
   const [showShareModal, setShowShareModal] = useState(false)
+  const [showCreateModal, setShowCreateModal] = useState(false)
+
+  const { cards, isLoading: cardsLoading } = useBingoCards()
 
   const {
     size,
@@ -24,7 +27,7 @@ export default function Home() {
     isLoaded: cardLoaded,
     isSaving,
     updateCell,
-  } = useSupabaseBingoCard()
+  } = useActiveBingoCard()
 
   const {
     gameState,
@@ -55,7 +58,7 @@ export default function Home() {
   const filledCells = cells.filter(c => c.goal_text && !c.is_free).length
   const hasGoals = filledCells > 0
 
-  const isLoaded = cardLoaded && gameLoaded
+  const isLoaded = cardLoaded && gameLoaded && !cardsLoading
 
   if (!isLoaded) {
     return (
@@ -106,6 +109,12 @@ export default function Home() {
         title={title || 'とぅーどぅーびんご'}
       />
 
+      {/* Create Card Modal */}
+      <CreateCardModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+      />
+
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
@@ -142,6 +151,13 @@ export default function Home() {
           </div>
         </div>
       </header>
+
+      {/* Card Tabs */}
+      {cards.length > 0 && (
+        <div className="max-w-4xl mx-auto px-4 pt-4">
+          <CardTabs onCreateClick={() => setShowCreateModal(true)} />
+        </div>
+      )}
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 py-6 space-y-6">

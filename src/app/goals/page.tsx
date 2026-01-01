@@ -3,21 +3,27 @@
 import { useState, useCallback, useRef } from 'react'
 import Link from 'next/link'
 import { HamburgerMenu } from '@/components/ui'
-import { useSupabaseBingoCard } from '@/hooks'
+import { CardTabs, CreateCardModal } from '@/components/bingo'
+import { useActiveBingoCard, useBingoCards } from '@/hooks'
 import { CATEGORIES, type Category } from '@/types'
 
 export default function GoalsPage() {
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const { cards, isLoading: cardsLoading } = useBingoCards()
+
   const {
     size,
     cells,
     title,
     hasFreeCenter,
-    isLoaded,
+    isLoaded: cardLoaded,
     isSaving,
     updateCell,
     setTitle,
     resetCard,
-  } = useSupabaseBingoCard()
+  } = useActiveBingoCard()
+
+  const isLoaded = cardLoaded && !cardsLoading
 
   const handleClearAll = useCallback(() => {
     if (window.confirm('すべての目標をクリアしますか？\nこの操作は取り消せません。')) {
@@ -120,6 +126,12 @@ export default function GoalsPage() {
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(to bottom right, var(--theme-background), color-mix(in srgb, var(--theme-secondary) 15%, var(--theme-background)))' }}>
+      {/* Create Card Modal */}
+      <CreateCardModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+      />
+
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
@@ -161,6 +173,13 @@ export default function GoalsPage() {
           </div>
         </div>
       </header>
+
+      {/* Card Tabs */}
+      {cards.length > 0 && (
+        <div className="max-w-4xl mx-auto px-4 pt-4">
+          <CardTabs onCreateClick={() => setShowCreateModal(true)} />
+        </div>
+      )}
 
       {/* Progress Bar */}
       <div className="bg-white border-b">
