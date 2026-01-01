@@ -103,7 +103,7 @@ export default function Home() {
         level={gameState.level}
         size={size}
         cells={cells}
-        title={title || 'とぅーどぅーびんご 2025'}
+        title={title || 'とぅーどぅーびんご'}
       />
 
       {/* Header */}

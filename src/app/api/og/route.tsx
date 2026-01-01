@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
             textShadow: '2px 2px 4px rgba(0,0,0,0.3)',
           }}
         >
-          とぅーどぅーびんご 2025
+          とぅーどぅーびんご
         </div>
 
         {/* Bingo Grid */}

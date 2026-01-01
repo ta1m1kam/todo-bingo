@@ -85,7 +85,7 @@ export default function SettingsPage() {
             <span>ℹ️</span> アプリについて
           </h3>
           <div className="text-sm text-gray-600 space-y-2">
-            <p>とぅーどぅーびんご 2025 - 目標達成ゲーム</p>
+            <p>とぅーどぅーびんご - 目標達成ゲーム</p>
             <p>ビンゴ形式で楽しく目標を管理・達成しよう！</p>
           </div>
         </div>
