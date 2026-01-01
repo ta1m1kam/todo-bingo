@@ -41,10 +41,10 @@ export default function GoalsPage() {
   const [savingPositions, setSavingPositions] = useState<Set<number>>(new Set())
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
-  // Reset local edits when cells change from server
+  // Reset local edits only when switching to a different card
   useEffect(() => {
     setLocalEdits({})
-  }, [cells])
+  }, [cardId])
 
   const totalCells = size * size
   const freeCells = cells.filter(c => c.is_free).length
