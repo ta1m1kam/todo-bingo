@@ -1,18 +1,16 @@
 import type { Metadata, Viewport } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Zen_Maru_Gothic } from "next/font/google";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { BingoCardProvider } from "@/contexts/BingoCardContext";
 import { AuthGuard } from "@/components/auth";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const zenMaruGothic = Zen_Maru_Gothic({
+  weight: ["400", "500", "700", "900"],
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-zen-maru",
 });
 
 export const metadata: Metadata = {
@@ -68,13 +66,16 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${zenMaruGothic.variable} antialiased`}
+        style={{ fontFamily: 'var(--font-zen-maru), sans-serif' }}
       >
         <AuthProvider>
           <ThemeProvider>
-            <AuthGuard>
-              {children}
-            </AuthGuard>
+            <BingoCardProvider>
+              <AuthGuard>
+                {children}
+              </AuthGuard>
+            </BingoCardProvider>
           </ThemeProvider>
         </AuthProvider>
       </body>
