@@ -5,9 +5,11 @@ import Link from 'next/link'
 import { HamburgerMenu } from '@/components/ui'
 import { CardTabs, CreateCardModal } from '@/components/bingo'
 import { useActiveBingoCard, useBingoCards } from '@/hooks'
+import { useAuth } from '@/contexts/AuthContext'
 import { CATEGORIES, type Category } from '@/types'
 
 export default function GoalsPage() {
+  const { user, isLoading: authLoading } = useAuth()
   const [showCreateModal, setShowCreateModal] = useState(false)
   const { cards, isLoading: cardsLoading } = useBingoCards()
 
@@ -15,6 +17,7 @@ export default function GoalsPage() {
     size,
     cells,
     title,
+    cardId,
     hasFreeCenter,
     isLoaded: cardLoaded,
     isSaving,
@@ -23,7 +26,8 @@ export default function GoalsPage() {
     resetCard,
   } = useActiveBingoCard()
 
-  const isLoaded = cardLoaded && !cardsLoading
+  const isLoading = authLoading || cardsLoading || !cardLoaded
+  const isReady = !isLoading && cardId !== null && user !== null
 
   const handleClearAll = useCallback(() => {
     if (window.confirm('すべての目標をクリアしますか？\nこの操作は取り消せません。')) {
@@ -164,7 +168,7 @@ export default function GoalsPage() {
     }
   }, [cells, localEdits])
 
-  if (!isLoaded) {
+  if (!isReady) {
     return (
       <div className="min-h-screen" style={{ backgroundColor: 'var(--theme-background)' }}>
         {/* Header with navigation during loading */}
@@ -189,12 +193,30 @@ export default function GoalsPage() {
             </div>
           </div>
         </header>
-        {/* Loading content */}
+        {/* Loading or error content */}
         <div className="flex items-center justify-center py-32">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: 'var(--theme-primary)' }}></div>
-            <div className="text-xl text-gray-500">読み込み中...</div>
-          </div>
+          {isLoading ? (
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto mb-4" style={{ borderColor: 'var(--theme-primary)' }}></div>
+              <div className="text-xl text-gray-500">読み込み中...</div>
+            </div>
+          ) : !user ? (
+            <div className="text-center">
+              <div className="text-5xl mb-4">🔐</div>
+              <div className="text-xl text-gray-700 mb-2">ログインが必要です</div>
+              <Link href="/" className="text-blue-600 hover:underline">
+                ホームに戻る
+              </Link>
+            </div>
+          ) : (
+            <div className="text-center">
+              <div className="text-5xl mb-4">📋</div>
+              <div className="text-xl text-gray-700 mb-2">ビンゴカードがありません</div>
+              <Link href="/" className="text-blue-600 hover:underline">
+                ホームでカードを作成
+              </Link>
+            </div>
+          )}
         </div>
       </div>
     )
