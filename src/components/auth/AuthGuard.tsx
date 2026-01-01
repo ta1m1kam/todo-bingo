@@ -18,17 +18,36 @@ export function AuthGuard({ children }: AuthGuardProps) {
     if (isLoading) {
       const timer = setTimeout(() => {
         setLoadingTimeout(true)
-      }, 10000) // 10 seconds timeout
+      }, 5000) // 5 seconds timeout
       return () => clearTimeout(timer)
     } else {
       setLoadingTimeout(false)
     }
   }, [isLoading])
 
+  const handleLogout = async () => {
+    try {
+      await signOut()
+    } catch (e) {
+      console.error('Logout error:', e)
+    }
+    // Force reload regardless of result
+    window.location.href = '/'
+  }
+
+  const handleForceLogout = () => {
+    // Clear all cookies and localStorage, then reload
+    document.cookie.split(';').forEach(c => {
+      document.cookie = c.replace(/^ +/, '').replace(/=.*/, '=;expires=' + new Date().toUTCString() + ';path=/')
+    })
+    localStorage.clear()
+    window.location.href = '/'
+  }
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-        {/* Header during loading */}
+        {/* Header during loading - always show logout */}
         <header className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-10">
           <div className="max-w-4xl mx-auto px-4 py-4">
             <div className="flex items-center justify-between">
@@ -38,14 +57,12 @@ export function AuthGuard({ children }: AuthGuardProps) {
                 </h1>
                 <p className="text-gray-500 text-sm">今年の目標をビンゴで達成しよう</p>
               </div>
-              {loadingTimeout && (
-                <button
-                  onClick={() => signOut()}
-                  className="px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                >
-                  ログアウト
-                </button>
-              )}
+              <button
+                onClick={handleForceLogout}
+                className="px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg transition-colors border border-red-200"
+              >
+                ログアウト
+              </button>
             </div>
           </div>
         </header>
@@ -69,10 +86,10 @@ export function AuthGuard({ children }: AuthGuardProps) {
                     再読み込み
                   </button>
                   <button
-                    onClick={() => signOut()}
-                    className="px-4 py-2 bg-gray-200 text-gray-700 text-sm rounded-lg hover:bg-gray-300 transition-colors"
+                    onClick={handleForceLogout}
+                    className="px-4 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition-colors"
                   >
-                    ログアウト
+                    強制ログアウト
                   </button>
                 </div>
               </div>
