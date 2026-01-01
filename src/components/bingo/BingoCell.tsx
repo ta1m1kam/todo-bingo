@@ -70,8 +70,8 @@ export function BingoCell({ cell, mode, isInCompletedLine, size, onUpdate }: Bin
               ? 'bg-gradient-to-br from-green-400 to-emerald-500 border-green-600 text-white shadow-lg scale-[1.02]'
               : 'bg-gradient-to-br from-green-100 to-green-200 border-green-400 text-green-800'
             : mode === 'edit'
-              ? 'bg-white border-gray-200 hover:border-blue-400 hover:shadow-md cursor-text'
-              : 'bg-white border-gray-200 hover:border-gray-400 hover:shadow-md cursor-pointer'
+              ? 'bg-white border-gray-300 hover:border-blue-400 hover:shadow-md cursor-text text-gray-900'
+              : 'bg-white border-gray-300 hover:border-gray-400 hover:shadow-md cursor-pointer text-gray-900'
         }
       `}
       onClick={handleClick}
@@ -85,14 +85,14 @@ export function BingoCell({ cell, mode, isInCompletedLine, size, onUpdate }: Bin
           onChange={(e) => setEditText(e.target.value)}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
-          className={`w-full h-full resize-none bg-transparent outline-none text-center ${fontSize}`}
+          className={`w-full h-full resize-none bg-transparent outline-none text-center text-gray-900 placeholder:text-gray-400 ${fontSize}`}
           placeholder="目標を入力..."
           maxLength={100}
         />
       ) : (
         <>
-          <span className={`${fontSize} break-words line-clamp-3`}>
-            {cell.goal_text || (mode === 'edit' ? 'クリックして入力' : '')}
+          <span className={`${fontSize} font-medium break-words line-clamp-3`}>
+            {cell.goal_text || (mode === 'edit' ? <span className="text-gray-400 font-normal">クリックして入力</span> : '')}
           </span>
           {cell.is_completed && !cell.is_free && (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">

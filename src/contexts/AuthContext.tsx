@@ -1,8 +1,8 @@
 'use client'
 
-import { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react'
+import { createContext, useContext, useEffect, useState, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
-import type { User, Session, SupabaseClient } from '@supabase/supabase-js'
+import type { User, Session, AuthChangeEvent } from '@supabase/supabase-js'
 import type { Profile } from '@/types/database'
 
 interface AuthContextType {
@@ -26,11 +26,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [isLoading, setIsLoading] = useState(true)
 
-  const supabase = useMemo(() => createClient(), [])
-
-  const fetchProfile = useCallback(async (userId: string, client: SupabaseClient) => {
+  const fetchProfile = useCallback(async (userId: string) => {
     try {
-      const { data, error } = await client
+      const supabase = createClient()
+      const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', userId)
@@ -46,37 +45,63 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const refreshProfile = useCallback(async () => {
     if (user) {
-      await fetchProfile(user.id, supabase)
+      await fetchProfile(user.id)
     }
-  }, [user, fetchProfile, supabase])
+  }, [user, fetchProfile])
 
   useEffect(() => {
+    let mounted = true
+    const supabase = createClient()
+
     const initAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession()
+        const timeoutPromise = new Promise<null>((_, reject) => {
+          setTimeout(() => reject(new Error('Auth timeout')), 5000)
+        })
 
-        if (session) {
+        const sessionPromise = supabase.auth.getSession()
+
+        const result = await Promise.race([sessionPromise, timeoutPromise])
+
+        if (!result || !mounted) {
+          if (mounted) setIsLoading(false)
+          return
+        }
+
+        const { data: { session }, error } = result as Awaited<typeof sessionPromise>
+
+        if (error) {
+          console.error('Session error:', error)
+        }
+
+        if (mounted && session) {
           setSession(session)
           setUser(session.user)
-          await fetchProfile(session.user.id, supabase)
+          try {
+            await fetchProfile(session.user.id)
+          } catch (profileError) {
+            console.error('Profile fetch error:', profileError)
+          }
         }
       } catch (e) {
         console.error('Auth init error:', e)
       } finally {
-        setIsLoading(false)
+        if (mounted) {
+          setIsLoading(false)
+        }
       }
     }
 
     initAuth()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
+      async (event: AuthChangeEvent, session: Session | null) => {
         console.log('Auth state change:', event, session?.user?.email)
         setSession(session)
         setUser(session?.user ?? null)
 
         if (session?.user) {
-          await fetchProfile(session.user.id, supabase)
+          await fetchProfile(session.user.id)
         } else {
           setProfile(null)
         }
@@ -88,11 +113,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     )
 
     return () => {
+      mounted = false
       subscription.unsubscribe()
     }
-  }, [supabase, fetchProfile])
+  }, [fetchProfile])
 
   const signInWithEmail = async (email: string, password: string) => {
+    const supabase = createClient()
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -101,6 +128,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signUpWithEmail = async (email: string, password: string, displayName?: string) => {
+    const supabase = createClient()
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -114,6 +142,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signInWithGoogle = async () => {
+    const supabase = createClient()
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -124,6 +153,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signInWithGitHub = async () => {
+    const supabase = createClient()
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'github',
       options: {
@@ -134,6 +164,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   const signOut = async () => {
+    const supabase = createClient()
     await supabase.auth.signOut()
     setUser(null)
     setProfile(null)

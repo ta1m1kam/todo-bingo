@@ -3,28 +3,13 @@
 import { useState } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 
-interface UserMenuProps {
-  onLoginClick: () => void
-}
-
-export function UserMenu({ onLoginClick }: UserMenuProps) {
+export function UserMenu() {
   const { user, profile, isLoading, signOut } = useAuth()
   const [showMenu, setShowMenu] = useState(false)
 
-  if (isLoading) {
+  if (isLoading || !user) {
     return (
       <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse" />
-    )
-  }
-
-  if (!user) {
-    return (
-      <button
-        onClick={onLoginClick}
-        className="px-4 py-2 bg-indigo-500 text-white text-sm font-medium rounded-lg hover:bg-indigo-600 transition-colors"
-      >
-        ログイン
-      </button>
     )
   }
 

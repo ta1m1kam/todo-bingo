@@ -213,8 +213,8 @@ export async function loadDataFromSupabase(userId: string): Promise<{
       }
     }
 
-    const activityDates = activities
-      ? [...new Set(activities.map((a: { created_at: string }) => a.created_at.split('T')[0]))]
+    const activityDates: string[] = activities
+      ? Array.from(new Set(activities.map((a: { created_at: string }) => a.created_at.split('T')[0])))
       : []
 
     const completedCellsCount = cells.filter(c => c.is_completed && !c.is_free).length

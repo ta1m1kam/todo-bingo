@@ -1,48 +1,31 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { BingoCard, BingoStatus, ModeToggle, SizeSelector } from '@/components/bingo'
+import Link from 'next/link'
+import { BingoCard, BingoStatus } from '@/components/bingo'
 import {
   PointsDisplay,
   PointsGain,
   LevelBadge,
   LevelUpPopup,
   AchievementPopup,
-  BadgeGrid,
   StreakCounter,
-  StreakCalendar,
 } from '@/components/gamification'
 import { ShareButton, ShareModal, Ranking } from '@/components/social'
-import { Dashboard } from '@/components/analytics'
-import { AuthModal, UserMenu } from '@/components/auth'
-import { ThemeSelector } from '@/components/settings'
+import { UserMenu } from '@/components/auth'
 import { useBingoCard, useGameState } from '@/hooks'
-import { useAuth } from '@/contexts/AuthContext'
-import { BADGE_DEFINITIONS } from '@/types'
-import type { BingoMode } from '@/types'
 
 export default function Home() {
-  const [mode, setMode] = useState<BingoMode>('edit')
-  const [showCalendar, setShowCalendar] = useState(false)
   const [showRanking, setShowRanking] = useState(false)
   const [showShareModal, setShowShareModal] = useState(false)
-  const [showDashboard, setShowDashboard] = useState(false)
-  const [showAuthModal, setShowAuthModal] = useState(false)
-
-  const { user } = useAuth()
 
   const {
     size,
-    hasFreeCenter,
     cells,
     title,
     stats,
     isLoaded: cardLoaded,
-    prevBingoLines,
     updateCell,
-    changeSize,
-    toggleFreeCenter,
-    resetCard,
     resetProgress,
   } = useBingoCard()
 
@@ -59,46 +42,29 @@ export default function Home() {
     resetGameState,
   } = useGameState()
 
-  const handleCellUpdate = useCallback((position: number, updates: Parameters<typeof updateCell>[1]) => {
-    const { wasCompletion, prevBingoLines: bingosBefore } = updateCell(position, updates)
+  const handleCellComplete = useCallback((position: number) => {
+    const cell = cells.find(c => c.position === position)
+    if (!cell || cell.is_free || !cell.goal_text) return
 
-    if (wasCompletion && updates.is_completed) {
+    const { wasCompletion, prevBingoLines: bingosBefore } = updateCell(position, { is_completed: !cell.is_completed })
+
+    if (wasCompletion) {
       const updatedCells = cells.map(c =>
-        c.position === position ? { ...c, ...updates } : c
+        c.position === position ? { ...c, is_completed: true } : c
       )
       onCellComplete(updatedCells, size, bingosBefore)
     }
   }, [cells, size, updateCell, onCellComplete])
-
-  const handleSizeChange = useCallback((newSize: typeof size) => {
-    if (cells.some(c => c.goal_text || c.is_completed)) {
-      if (!window.confirm('サイズを変更するとすべてのデータがリセットされます。続けますか？')) {
-        return
-      }
-    }
-    changeSize(newSize)
-  }, [cells, changeSize])
-
-  const handleFreeCenterChange = useCallback((enabled: boolean) => {
-    if (cells.some(c => c.goal_text || c.is_completed)) {
-      if (!window.confirm('設定を変更するとすべてのデータがリセットされます。続けますか？')) {
-        return
-      }
-    }
-    toggleFreeCenter(enabled)
-  }, [cells, toggleFreeCenter])
-
-  const handleReset = useCallback(() => {
-    if (window.confirm('すべてのマスをリセットしますか？')) {
-      resetCard()
-    }
-  }, [resetCard])
 
   const handleClearProgress = useCallback(() => {
     if (window.confirm('達成状況をリセットしますか？（目標は残ります）')) {
       resetProgress()
     }
   }, [resetProgress])
+
+  const filledCells = cells.filter(c => c.goal_text && !c.is_free).length
+  const totalEditableCells = cells.filter(c => !c.is_free).length
+  const hasGoals = filledCells > 0
 
   const isLoaded = cardLoaded && gameLoaded
 
@@ -122,12 +88,6 @@ export default function Home() {
       {pendingLevelUp && (
         <LevelUpPopup newLevel={pendingLevelUp} onClose={clearPendingLevelUp} />
       )}
-
-      {/* Auth Modal */}
-      <AuthModal
-        isOpen={showAuthModal}
-        onClose={() => setShowAuthModal(false)}
-      />
 
       {/* Share Modal */}
       <ShareModal
@@ -162,7 +122,7 @@ export default function Home() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
                 </svg>
               </button>
-              <UserMenu onLoginClick={() => setShowAuthModal(true)} />
+              <UserMenu />
             </div>
           </div>
         </div>
@@ -184,72 +144,60 @@ export default function Home() {
           />
         </div>
 
-        {/* Controls */}
-        <div className="bg-white rounded-xl shadow-md p-4 space-y-4">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <SizeSelector
-              size={size}
-              onSizeChange={handleSizeChange}
-            />
-            <ModeToggle mode={mode} onModeChange={setMode} />
+        {/* No Goals Warning */}
+        {!hasGoals && (
+          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+            <div className="flex items-start gap-3">
+              <span className="text-2xl">📝</span>
+              <div>
+                <h3 className="font-medium text-yellow-800">目標を入力してください</h3>
+                <p className="text-sm text-yellow-700 mt-1">
+                  まずは目標を設定しましょう。入力が完了したら達成を記録できます。
+                </p>
+                <Link
+                  href="/goals"
+                  className="inline-block mt-3 px-4 py-2 bg-yellow-500 text-white rounded-lg text-sm font-medium hover:bg-yellow-600 transition-colors"
+                >
+                  目標を入力する
+                </Link>
+              </div>
+            </div>
           </div>
-
-          <div className="flex flex-wrap items-center justify-center gap-4">
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={hasFreeCenter}
-                onChange={(e) => handleFreeCenterChange(e.target.checked)}
-                disabled={size % 2 === 0}
-                className="w-4 h-4 rounded text-blue-500 focus:ring-blue-500"
-              />
-              <span className={`text-sm ${size % 2 === 0 ? 'text-gray-400' : 'text-gray-700'}`}>
-                中央フリーマス
-              </span>
-            </label>
-
-            <button
-              onClick={handleClearProgress}
-              className="text-sm text-orange-600 hover:text-orange-700 underline"
-            >
-              進捗をリセット
-            </button>
-
-            <button
-              onClick={handleReset}
-              className="text-sm text-red-600 hover:text-red-700 underline"
-            >
-              すべてリセット
-            </button>
-          </div>
-        </div>
+        )}
 
         {/* Mode Indicator */}
-        <div className={`text-center text-sm font-medium py-2 rounded-lg ${
-          mode === 'edit'
-            ? 'bg-blue-100 text-blue-700'
-            : 'bg-green-100 text-green-700'
-        }`}>
-          {mode === 'edit'
-            ? '✏️ マスをクリックして目標を入力してください'
-            : '🎯 達成した目標のマスをクリックしてください'
-          }
+        <div className="text-center text-sm font-medium py-3 rounded-lg bg-green-100 text-green-700">
+          🎯 達成した目標のマスをクリックしてください
+          {hasGoals && (
+            <span className="ml-2 text-green-600">
+              ({stats.completedCells}/{filledCells} 達成)
+            </span>
+          )}
         </div>
 
         {/* Bingo Card */}
         <BingoCard
           cells={cells}
           size={size}
-          mode={mode}
+          mode="play"
           title={title}
-          onCellUpdate={handleCellUpdate}
+          onCellUpdate={(position) => handleCellComplete(position)}
         />
 
         {/* Status */}
         <BingoStatus cells={cells} size={size} />
 
-        {/* Share Button */}
-        <div className="flex justify-center">
+        {/* Action Buttons */}
+        <div className="flex flex-wrap justify-center gap-3">
+          <Link
+            href="/goals"
+            className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-shadow flex items-center gap-2"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            目標を編集
+          </Link>
           <ShareButton
             data={{
               title: 'Todo Bingo 2025',
@@ -260,39 +208,6 @@ export default function Home() {
               level: gameState.level,
             }}
           />
-        </div>
-
-        {/* Badges */}
-        <BadgeGrid
-          badges={BADGE_DEFINITIONS}
-          earnedBadgeIds={gameState.earnedBadgeIds}
-        />
-
-        {/* Dashboard Toggle */}
-        <div className="bg-white rounded-xl shadow-md overflow-hidden">
-          <button
-            onClick={() => setShowDashboard(!showDashboard)}
-            className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors"
-          >
-            <h3 className="font-medium text-gray-800 flex items-center gap-2">
-              <span>📊</span> ダッシュボード
-            </h3>
-            <span className="text-gray-400">{showDashboard ? '▲' : '▼'}</span>
-          </button>
-          {showDashboard && (
-            <div className="border-t p-4">
-              <Dashboard
-                totalPoints={gameState.totalPoints}
-                level={gameState.level}
-                totalCellsCompleted={gameState.totalCellsCompleted}
-                totalBingos={gameState.totalBingos}
-                earnedBadgeIds={gameState.earnedBadgeIds}
-                maxStreak={gameState.maxStreak}
-                activityDates={gameState.activityDates}
-                cells={cells}
-              />
-            </div>
-          )}
         </div>
 
         {/* Ranking Toggle */}
@@ -317,33 +232,46 @@ export default function Home() {
           )}
         </div>
 
-        {/* Activity Calendar Toggle */}
-        <div className="bg-white rounded-xl shadow-md p-4">
-          <button
-            onClick={() => setShowCalendar(!showCalendar)}
-            className="w-full flex items-center justify-between text-left"
+        {/* Navigation Links */}
+        <div className="grid grid-cols-3 gap-4">
+          <Link
+            href="/goals"
+            className="bg-white rounded-xl shadow-md p-4 hover:shadow-lg transition-shadow flex items-center gap-3"
           >
-            <h3 className="font-medium text-gray-800 flex items-center gap-2">
-              <span>📅</span> アクティビティカレンダー
-            </h3>
-            <span className="text-gray-400">{showCalendar ? '▲' : '▼'}</span>
-          </button>
-          {showCalendar && (
-            <div className="mt-4">
-              <StreakCalendar activityDates={gameState.activityDates} />
+            <span className="text-2xl">📝</span>
+            <div>
+              <h3 className="font-medium text-gray-800">目標入力</h3>
+              <p className="text-sm text-gray-500">リスト形式</p>
             </div>
-          )}
+          </Link>
+          <Link
+            href="/analytics"
+            className="bg-white rounded-xl shadow-md p-4 hover:shadow-lg transition-shadow flex items-center gap-3"
+          >
+            <span className="text-2xl">📊</span>
+            <div>
+              <h3 className="font-medium text-gray-800">統計・分析</h3>
+              <p className="text-sm text-gray-500">達成状況を確認</p>
+            </div>
+          </Link>
+          <Link
+            href="/settings"
+            className="bg-white rounded-xl shadow-md p-4 hover:shadow-lg transition-shadow flex items-center gap-3"
+          >
+            <span className="text-2xl">⚙️</span>
+            <div>
+              <h3 className="font-medium text-gray-800">設定</h3>
+              <p className="text-sm text-gray-500">テーマなど</p>
+            </div>
+          </Link>
         </div>
-
-        {/* Theme Selector */}
-        <ThemeSelector />
 
         {/* Tips */}
         <div className="bg-white rounded-xl shadow-md p-4">
           <h3 className="font-medium text-gray-800 mb-2">💡 ヒント</h3>
           <ul className="text-sm text-gray-600 space-y-1">
-            <li>• 編集モードでマスをクリックして目標を入力</li>
-            <li>• 達成モードでマスをクリックして達成マーク</li>
+            <li>• 目標入力ページでリスト形式で簡単に入力</li>
+            <li>• マスをクリックして達成マーク</li>
             <li>• 縦・横・斜めのラインを揃えてビンゴ!</li>
             <li>• 連続で達成するとストリークボーナス!</li>
             <li>• バッジを集めて実績をアンロック!</li>
@@ -351,34 +279,17 @@ export default function Home() {
           </ul>
         </div>
 
-        {/* Statistics */}
-        <div className="bg-white rounded-xl shadow-md p-4">
-          <h3 className="font-medium text-gray-800 mb-3">📊 統計</h3>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center">
-            <div>
-              <div className="text-2xl font-bold text-blue-600">{gameState.totalCellsCompleted}</div>
-              <div className="text-xs text-gray-500">総達成マス</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-green-600">{gameState.totalBingos}</div>
-              <div className="text-xs text-gray-500">総ビンゴ</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-purple-600">{gameState.earnedBadgeIds.length}</div>
-              <div className="text-xs text-gray-500">獲得バッジ</div>
-            </div>
-            <div>
-              <div className="text-2xl font-bold text-orange-600">{gameState.maxStreak}</div>
-              <div className="text-xs text-gray-500">最長ストリーク</div>
-            </div>
-          </div>
-        </div>
-
         {/* Data Management */}
-        <div className="text-center">
+        <div className="flex justify-center gap-4 text-xs">
+          <button
+            onClick={handleClearProgress}
+            className="text-orange-500 hover:text-orange-600 underline"
+          >
+            進捗をリセット
+          </button>
           <button
             onClick={resetGameState}
-            className="text-xs text-gray-400 hover:text-red-500 underline"
+            className="text-gray-400 hover:text-red-500 underline"
           >
             ゲームデータをリセット
           </button>

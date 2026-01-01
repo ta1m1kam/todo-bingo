@@ -1,0 +1,315 @@
+'use client'
+
+import { useState, useCallback, useRef, useEffect } from 'react'
+import Link from 'next/link'
+import { useBingoCard } from '@/hooks'
+import { CATEGORIES, type Category } from '@/types'
+
+export default function GoalsPage() {
+  const {
+    size,
+    cells,
+    title,
+    hasFreeCenter,
+    isLoaded,
+    updateCell,
+    setTitle,
+  } = useBingoCard()
+
+  const [focusedIndex, setFocusedIndex] = useState<number | null>(null)
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([])
+
+  const totalCells = size * size
+  const filledCells = cells.filter(c => c.goal_text && !c.is_free).length
+  const freeCells = cells.filter(c => c.is_free).length
+  const editableCells = totalCells - freeCells
+
+  const handleGoalChange = useCallback((position: number, text: string) => {
+    updateCell(position, { goal_text: text })
+  }, [updateCell])
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent, currentIndex: number) => {
+    if (e.key === 'Enter' || (e.key === 'Tab' && !e.shiftKey)) {
+      e.preventDefault()
+      const nextIndex = currentIndex + 1
+      if (nextIndex < cells.length) {
+        const nextCell = cells[nextIndex]
+        if (!nextCell.is_free) {
+          inputRefs.current[nextIndex]?.focus()
+          setFocusedIndex(nextIndex)
+        } else if (nextIndex + 1 < cells.length) {
+          inputRefs.current[nextIndex + 1]?.focus()
+          setFocusedIndex(nextIndex + 1)
+        }
+      }
+    } else if (e.key === 'Tab' && e.shiftKey) {
+      e.preventDefault()
+      const prevIndex = currentIndex - 1
+      if (prevIndex >= 0) {
+        const prevCell = cells[prevIndex]
+        if (!prevCell.is_free) {
+          inputRefs.current[prevIndex]?.focus()
+          setFocusedIndex(prevIndex)
+        } else if (prevIndex - 1 >= 0) {
+          inputRefs.current[prevIndex - 1]?.focus()
+          setFocusedIndex(prevIndex - 1)
+        }
+      }
+    }
+  }, [cells])
+
+  const getPositionLabel = (position: number): string => {
+    const row = Math.floor(position / size) + 1
+    const col = (position % size) + 1
+    return `${row}行${col}列`
+  }
+
+  const scrollToNext = useCallback(() => {
+    const nextEmpty = cells.findIndex(c => !c.is_free && !c.goal_text)
+    if (nextEmpty !== -1) {
+      inputRefs.current[nextEmpty]?.focus()
+      inputRefs.current[nextEmpty]?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      setFocusedIndex(nextEmpty)
+    }
+  }, [cells])
+
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+        <div className="text-xl text-gray-500">Loading...</div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      {/* Header */}
+      <header className="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-10">
+        <div className="max-w-4xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Link
+                href="/"
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </Link>
+              <div>
+                <h1 className="text-xl font-bold text-gray-800">目標入力</h1>
+                <p className="text-sm text-gray-500">リスト形式で簡単に入力</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="text-sm text-gray-600">
+                <span className="font-bold text-blue-600">{filledCells}</span>
+                <span className="text-gray-400"> / {editableCells} 入力済み</span>
+              </span>
+              <button
+                onClick={scrollToNext}
+                disabled={filledCells >= editableCells}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg text-sm font-medium hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                次の空欄へ
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* Progress Bar */}
+      <div className="bg-white border-b">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-blue-500 to-indigo-500 transition-all duration-300"
+              style={{ width: `${(filledCells / editableCells) * 100}%` }}
+            />
+          </div>
+        </div>
+      </div>
+
+      <main className="max-w-4xl mx-auto px-4 py-6">
+        {/* Title Input */}
+        <div className="bg-white rounded-xl shadow-md p-4 mb-6">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            ビンゴカードのタイトル
+          </label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="w-full px-4 py-3 text-lg text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+            placeholder="例: 2025年の目標"
+          />
+        </div>
+
+        {/* Mini Preview */}
+        <div className="bg-white rounded-xl shadow-md p-4 mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-medium text-gray-800">プレビュー</h2>
+            <Link href="/" className="text-sm text-blue-600 hover:underline">
+              カードを見る →
+            </Link>
+          </div>
+          <div
+            className="grid gap-1 max-w-xs mx-auto"
+            style={{ gridTemplateColumns: `repeat(${size}, 1fr)` }}
+          >
+            {cells.map((cell, index) => (
+              <div
+                key={index}
+                className={`aspect-square rounded-sm flex items-center justify-center text-xs
+                  ${cell.is_free ? 'bg-yellow-200' : cell.goal_text ? 'bg-blue-200' : 'bg-gray-100'}
+                  ${focusedIndex === index ? 'ring-2 ring-blue-500' : ''}
+                `}
+                title={cell.goal_text || (cell.is_free ? 'FREE' : '未入力')}
+              >
+                {cell.is_free ? '★' : cell.goal_text ? '✓' : ''}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Goal List */}
+        <div className="bg-white rounded-xl shadow-md overflow-hidden">
+          <div className="p-4 border-b bg-gray-50">
+            <h2 className="font-medium text-gray-800">目標リスト</h2>
+            <p className="text-sm text-gray-500 mt-1">
+              Enterキーで次の項目に移動できます
+            </p>
+          </div>
+          <div className="divide-y">
+            {cells.map((cell, index) => {
+              if (cell.is_free) {
+                return (
+                  <div
+                    key={index}
+                    className="px-4 py-3 bg-yellow-50 flex items-center gap-4"
+                  >
+                    <span className="text-sm text-gray-500 w-20 flex-shrink-0">
+                      {getPositionLabel(cell.position)}
+                    </span>
+                    <div className="flex items-center gap-2 text-yellow-600">
+                      <span className="text-lg">★</span>
+                      <span className="font-medium">FREE マス</span>
+                    </div>
+                  </div>
+                )
+              }
+
+              return (
+                <div
+                  key={index}
+                  className={`px-4 py-3 transition-colors ${
+                    focusedIndex === index ? 'bg-blue-50' : 'hover:bg-gray-50'
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <span className="text-sm text-gray-500 w-20 flex-shrink-0">
+                      {getPositionLabel(cell.position)}
+                    </span>
+                    <div className="flex-1 relative">
+                      <input
+                        ref={(el) => { inputRefs.current[index] = el }}
+                        type="text"
+                        value={cell.goal_text}
+                        onChange={(e) => handleGoalChange(cell.position, e.target.value)}
+                        onFocus={() => setFocusedIndex(index)}
+                        onBlur={() => setFocusedIndex(null)}
+                        onKeyDown={(e) => handleKeyDown(e, index)}
+                        className="w-full px-4 py-2 text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                        placeholder="目標を入力..."
+                      />
+                      {cell.goal_text && (
+                        <button
+                          onClick={() => handleGoalChange(cell.position, '')}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        >
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      )}
+                    </div>
+                    <div className="w-8 flex-shrink-0 text-center">
+                      {cell.goal_text ? (
+                        <span className="text-green-500">✓</span>
+                      ) : (
+                        <span className="text-gray-300">○</span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Templates */}
+        <div className="mt-6 bg-white rounded-xl shadow-md p-4">
+          <h2 className="font-medium text-gray-800 mb-3">💡 目標のヒント</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {CATEGORIES.map((category) => (
+              <GoalTemplates key={category} category={category} />
+            ))}
+          </div>
+        </div>
+
+        {/* Actions */}
+        <div className="mt-6 flex justify-center gap-4">
+          <Link
+            href="/"
+            className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-xl font-medium shadow-md hover:shadow-lg transition-shadow"
+          >
+            ビンゴカードに戻る
+          </Link>
+        </div>
+      </main>
+    </div>
+  )
+}
+
+function GoalTemplates({ category }: { category: Category }) {
+  const templates: Record<Category, string[]> = {
+    '健康': ['毎日7時間睡眠', '週3回運動', '野菜を毎食食べる', '禁煙する'],
+    '学習': ['英語を勉強', '資格を取得', '本を月2冊読む', '新技術を学ぶ'],
+    '仕事': ['昇進する', 'プロジェクト完遂', 'スキルアップ', '残業を減らす'],
+    '趣味': ['旅行に行く', '楽器を始める', '写真を撮る', 'DIYする'],
+    '人間関係': ['友達と会う', '家族と過ごす', '新しい出会い', '感謝を伝える'],
+    'お金': ['貯金する', '投資を始める', '節約する', '収入を増やす'],
+    '自己成長': ['瞑想する', '日記を書く', '早起きする', '断捨離する'],
+    'その他': ['推し活', 'ボランティア', 'イベント参加', '目標達成'],
+  }
+
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full px-3 py-2.5 text-sm font-medium text-gray-800 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors text-left border border-gray-200"
+      >
+        {category}
+      </button>
+      {isOpen && (
+        <div className="absolute top-full left-0 mt-1 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+          {templates[category].map((template, i) => (
+            <button
+              key={i}
+              onClick={() => {
+                navigator.clipboard.writeText(template)
+                setIsOpen(false)
+              }}
+              className="w-full px-4 py-2.5 text-sm text-gray-800 text-left hover:bg-blue-50 first:rounded-t-lg last:rounded-b-lg border-b border-gray-100 last:border-b-0"
+            >
+              <span className="font-medium">{template}</span>
+              <span className="text-xs text-blue-500 ml-2 block mt-0.5">クリックでコピー</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
