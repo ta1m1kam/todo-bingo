@@ -23,7 +23,7 @@ export function BingoCard({ cells, size, mode, title, onCellUpdate }: BingoCardP
   }, [cells])
 
   return (
-    <div className="w-full max-w-2xl mx-auto">
+    <div className="w-full">
       {title && (
         <h2 className="text-2xl font-bold text-center mb-4 text-gray-800">{title}</h2>
       )}
